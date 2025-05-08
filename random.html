@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EELHQKTT7Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-EELHQKTT7Z');
+</script>
+
+  
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Num Generator with Exclusions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+         }
+
+        label {
+            margin-right: 10px;
+        }
+        button {
+            width: 300px;
+            height: 45px;
+            font-size:large;
+        }
+      input {
+    width: 100px;
+}
+
+      
+  
+.footer {
+    padding-block: 1rem;
+    background-color: #151823;
+    color: #666873;
+}
+.footer__container {
+    max-width: 116rem;
+    margin: auto;
+    padding: 0 1.5rem;
+}
+
+.footer__top {
+    display: grid;
+    grid-template-columns: 
+    repeat(auto-fit, minmax(20rem, 1fr));
+    row-gap: 2rem;
+}
+.footer__title {
+    font-size: 1.8rem;
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 2rem;
+}
+.footer__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.footer__list-item {
+    list-style: none;
+}
+.footer__list-link {
+    text-decoration: none;
+    color: inherit;
+    transition: color .25s;
+}
+.footer__list-link:hover {
+    color: #fff;
+}
+
+.company__info {
+    grid-column: 1/-1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-right: 5rem;
+}
+.company__logo {
+    color: #fff;
+}
+.company__info ul {
+    flex-direction: row;
+}
+.copyright {
+    margin-top: auto;
+}
+@media screen and (min-width: 40em) {
+    .company__info {
+        grid-column: span 2;
+    }
+}
+      
+      
+      
+    </style>
+</head>
+  
+
+<body>
+    <h1>Random Num Generator</h1>
+    <p>
+    <label for="minValue">Min Value:</label>
+    <input type="number" id="minValue" value="1" min="1" max="12">
+    
+    <label for="maxValue">Max Value:</label>
+    <input type="number" id="maxValue" value="12" min="1" max="12">
+
+    </p>  
+    
+    <p>
+      
+    <label for="excludedNumbers">Excluded Numbers (comma-separated):</label>
+    <input type="text" id="excludedNumbers" placeholder="e.g., 7,9,11">
+   </p>
+      
+    <br>
+
+  <button onclick="generateRandomNumber()"><b>Generate Random Num</b></button>
+
+    <p id="randomNumber">Click the button to generate a random num.</p>
+
+    <script>
+      
+      const str = 'mebee';
+
+     // fontsizeを5に設定
+      str.fontsize(5);
+      
+        function generateRandomNumber() {
+            var minValue = parseInt(document.getElementById("minValue").value, 10);
+            var maxValue = parseInt(document.getElementById("maxValue").value, 10);
+            var excludedNumbersInput = document.getElementById("excludedNumbers").value;
+            var excludedNumbers = excludedNumbersInput.split(',').map(Number);
+
+            var randomValue;
+            var isExcluded;
+
+            do {
+                isExcluded = false;
+                randomValue = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+
+                for (var i = 0; i < excludedNumbers.length; i++) {
+                    if (randomValue === excludedNumbers[i]) {
+                        isExcluded = true;
+                        break;
+                    }
+                }
+            } while (isExcluded);
+
+            document.getElementById("randomNumber").innerHTML = "Random Num: " + randomValue;
+          
+        }
+    </script>
+</body>
+ <footer class="footer">
+            <div class="footer__container">
+
+                        <h6 class="footer__title">jsfandom</h6>
+                        <ul class="footer__list">
+                            <li class="footer__list-item">
+                                <a href="https://jsfandom.glitch.me/eniweb.html" class="footer__list-link">Encyccription</a>
+                            </li>
+                            <li class="footer__list-item">
+                                <a href="https://jsfandom.glitch.me/random.html" class="footer__list-link">Random num</a>
+                            </li>
+                            <li class="footer__list-item">
+                                <a href="" class="footer__list-link"></a>
+                            </li>
+                            <li class="footer__list-item">
+                                <a href="" class="footer__list-link"></a>
+                            </li>
+                        </ul>
+                  <img src="https://cdn.glitch.global/a76ce7c5-684c-4314-a145-b0be08281135/QR_random.png?v=1704274758324">
+                  </div>
+   
+        </footer>  
+  
+</html>

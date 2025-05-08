@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL変換ツール</title>
+    <script>
+        function convertGithubURL() {
+            const inputURL = document.getElementById('githubInputBox').value;
+            const outputElement = document.getElementById('githubOutput');
+
+            if (inputURL.startsWith("https://raw.githubusercontent.com/")) {
+                const newURL = inputURL.replace("https://raw.githubusercontent.com/", "https://raw.githack.com/");
+                outputElement.innerHTML = `<a href="${newURL}" target="_blank">${newURL}</a>`;
+            } else {
+                outputElement.textContent = "Invalid GitHub raw URL. Please enter a valid GitHub raw URL.";
+            }
+        }
+
+        function convertYoutubeURL() {
+            const inputURL = document.getElementById('youtubeInputBox').value;
+            const outputElement = document.getElementById('youtubeOutput');
+
+            if (inputURL.startsWith("https://www.youtube.com/")) {
+                const newURL = inputURL.replace("https://www.youtube.com/", "https://www.youtubepp.com/");
+                outputElement.innerHTML = `<a href="${newURL}" target="_blank">${newURL}</a>`;
+            } else {
+                outputElement.textContent = "Invalid YouTube URL. Please enter a valid YouTube URL.";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>URL変換ツール</h1>
+
+    <!-- GitHub URL変換部分 -->
+    <h2>GitHub raw URLの変換</h2>
+    <p>以下のボックスにGitHubのraw URLを入力してください。</p>
+    <input type="text" id="githubInputBox" placeholder="https://raw.githubusercontent.com/XXXXX.html">
+    <button onclick="convertGithubURL()">GitHub URLを変換</button>
+    <p>変換されたGitHub URL:</p>
+    <p id="githubOutput"></p>
+
+    <!-- YouTube URL変換部分 -->
+    <h2>YouTube URLの変換</h2>
+    <p>以下のボックスにYouTubeのURLを入力してください。</p>
+    <input type="text" id="youtubeInputBox" placeholder="https://www.youtube.com/XXXXX">
+    <button onclick="convertYoutubeURL()">YouTube URLを変換</button>
+    <p>変換されたYouTube URL:</p>
+    <p id="youtubeOutput"></p>
+    
+</body>
+</html>

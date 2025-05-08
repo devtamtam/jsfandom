@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EELHQKTT7Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EELHQKTT7Z');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background:#233b47;
+        }
+        h1 {
+            color: white;
+        }
+        #qrcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #url-text {
+            margin-top: 10px;
+            color: white;
+            text-align: center;
+            word-break: break-all;
+            max-width: 256px;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        #print-button, #reset-button {
+            display: none;
+        }
+        #reset-button {
+            background-color: #dc3545;
+        }
+        #reset-button:hover {
+            background-color: #c82333;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #qrcode-container, #qrcode-container * {
+                visibility: visible;
+            }
+            #qrcode-container {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <input type="text" id="text" placeholder="Enter URL here">
+    <button class="button" onclick="generateQRCode()">Generate QR Code</button>
+    <div id="qrcode-container">
+        <div id="qrcode"></div>
+        <p id="url-text"></p>
+    </div>
+    <button id="print-button" class="button" onclick="window.print()">Print QR Code</button>
+    <button id="reset-button" class="button" onclick="resetAll()">Reset</button>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        function generateQRCode() {
+            const qrcodeContainer = document.getElementById('qrcode');
+            const urlTextElement = document.getElementById('url-text');
+            qrcodeContainer.innerHTML = ''; // Clear any existing QR code
+            urlTextElement.textContent = ''; // Clear any existing URL text
+            const text = document.getElementById('text').value;
+            if (text) {
+                new QRCode(qrcodeContainer, {
+                    text: text,
+                    width: 256,
+                    height: 256,
+                });
+                urlTextElement.textContent = text; // Display the URL text below QR code
+                document.getElementById('print-button').style.display = 'inline-block';
+                document.getElementById('reset-button').style.display = 'inline-block';
+            }
+        }
+        function resetAll() {
+            document.getElementById('text').value = '';
+            document.getElementById('qrcode').innerHTML = '';
+            document.getElementById('url-text').textContent = '';
+            document.getElementById('print-button').style.display = 'none';
+            document.getElementById('reset-button').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>チェーン軸間距離計算・全体可視化ツール</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    label { display: inline-block; width: 240px; }
+    input { width: 80px; }
+    .error { color: red; }
+    canvas { border: 1px solid #ccc; margin-top: 20px; background-color: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <h1>チェーン軸間距離計算・全体可視化ツール</h1>
+  <p>
+    スプロケットの歯数 N1, N2 とチェーンの長さ Lp (ピッチ数) を入力してください。<br>
+    チェーンのピッチ (mm) は 6.35mm または 12.7mm から選択できます。
+  </p>
+  
+  <div>
+    <label for="n1">スプロケット1の歯数 (N1): </label>
+    <input type="number" id="n1" value="20">
+  </div>
+  
+  <div>
+    <label for="n2">スプロケット2の歯数 (N2): </label>
+    <input type="number" id="n2" value="30">
+  </div>
+  
+  <div>
+    <label for="lp">チェーンの長さ (Lp) (ピッチ数): </label>
+    <input type="number" id="lp" value="100">
+  </div>
+  
+  <div>
+    <p>チェーンのピッチ (mm):</p>
+    <label><input type="radio" name="pitch" value="6.35" checked> 6.35 mm</label>
+    <label><input type="radio" name="pitch" value="12.7"> 12.7 mm</label>
+  </div>
+  
+  <br>
+  <button onclick="calculateAndVisualize()">計算する</button>
+  
+  <h2>計算結果</h2>
+  <div id="result"></div>
+  
+  <!-- 描画用キャンバス -->
+  <canvas id="canvas" width="800" height="400"></canvas>
+  
+  <script>
+    function calculateAndVisualize() {
+      // 入力値の取得
+      const n1 = parseFloat(document.getElementById('n1').value);
+      const n2 = parseFloat(document.getElementById('n2').value);
+      const lp = parseFloat(document.getElementById('lp').value);
+      
+      // ピッチ値取得
+      let chainPitch;
+      document.getElementsByName('pitch').forEach(r => { if (r.checked) chainPitch = parseFloat(r.value); });
+
+      // ギア比計算
+      const gearRatio = n2 / n1;
+
+      // チェーン長式
+      const halfSum = (n1 + n2) / 2;
+      const diff = n2 - n1;
+      const disc = Math.pow(lp - halfSum, 2) - (2 * Math.pow(diff, 2)) / (Math.PI * Math.PI);
+      const resultDiv = document.getElementById('result');
+      if (disc < 0) {
+        resultDiv.innerHTML = '<span class="error">入力値が無効です。計算可能な値を入力してください。</span>';
+        clearCanvas();
+        return;
+      }
+      const Cp = ((lp - halfSum) + Math.sqrt(disc)) / 4;
+      const C_real = Cp * chainPitch;
+      const L_real = lp * chainPitch;
+
+      // 結果表示
+      resultDiv.innerHTML = 
+        `<p>軸間中心距離 Cp = ${Cp.toFixed(4)} (ピッチ) ＝ ${C_real.toFixed(2)} mm</p>` +
+        `<p>チェーン長 Lp = ${lp.toFixed(4)} (ピッチ) ＝ ${L_real.toFixed(2)} mm</p>` +
+        `<p>ギア比 N2/N1 = ${gearRatio.toFixed(2)}</p>`;
+
+      // 各スプロケット外周(mm)
+      const R1 = chainPitch/(2*Math.sin(Math.PI/n1));
+      const R2 = chainPitch/(2*Math.sin(Math.PI/n2));
+      const outer1 = R1*1.1;
+      const outer2 = R2*1.1;
+
+      // 描画範囲(mm)
+      const width_mm = outer1 + C_real + outer2;
+      const height_mm = 2 * Math.max(outer1, outer2);
+      
+      // Canvas初期化
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      // スケールpx/mm
+      const margin = 20;
+      const scale = Math.min((canvas.width-2*margin)/width_mm, (canvas.height-2*margin)/height_mm);
+
+      // 中心座標(px)
+      const cx1 = margin + outer1*scale;
+      const cy = canvas.height/2;
+      const cx2 = cx1 + C_real*scale;
+
+      // 軸間距離線
+      ctx.beginPath();
+      ctx.setLineDash([5,5]);
+      ctx.moveTo(cx1, cy);
+      ctx.lineTo(cx2, cy);
+      ctx.strokeStyle = 'green';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '16px sans-serif';
+      ctx.fillStyle = 'green';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${C_real.toFixed(2)} mm`, (cx1+cx2)/2, cy-10);
+
+      // スプロケット描画
+      drawSprocket(ctx, cx1, cy, n1, chainPitch, scale);
+      drawSprocket(ctx, cx2, cy, n2, chainPitch, scale);
+    }
+
+    function clearCanvas() {
+      const c = document.getElementById('canvas');
+      c.getContext('2d').clearRect(0,0,c.width,c.height);
+    }
+
+    function drawSprocket(ctx, x, y, teeth, pitch, scale) {
+      const Rp = pitch/(2*Math.sin(Math.PI/teeth))*scale;
+      const inner = Rp*0.9;
+      const outer = Rp*1.1;
+      // ピッチ円
+      ctx.beginPath(); ctx.arc(x,y,Rp,0,2*Math.PI);
+      ctx.strokeStyle='blue'; ctx.lineWidth=2; ctx.stroke();
+      // 外周
+      ctx.beginPath(); ctx.arc(x,y,outer,0,2*Math.PI);
+      ctx.strokeStyle='black'; ctx.lineWidth=2; ctx.stroke();
+      // 歯
+      for(let i=0;i<teeth;i++){
+        const a=2*Math.PI/teeth*i;
+        ctx.beginPath();
+        ctx.moveTo(x+inner*Math.cos(a),y+inner*Math.sin(a));
+        ctx.lineTo(x+outer*Math.cos(a),y+outer*Math.sin(a));
+        ctx.strokeStyle='red'; ctx.lineWidth=1; ctx.stroke();
+      }
+      // 中心点
+      ctx.beginPath(); ctx.arc(x,y,3,0,2*Math.PI); ctx.fill();
+      ctx.font='16px sans-serif'; ctx.fillStyle='black'; ctx.textAlign='center';
+      ctx.fillText(`${teeth} teeth`, x, y);
+    }
+  </script>
+</body>
+</html>

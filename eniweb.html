@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EELHQKTT7Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-EELHQKTT7Z');
+</script>
+
+  
+  
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption/Decryption</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+           background:green;
+         }
+
+        button {
+            height:100px;
+          
+            padding: 2% 5%; /* Adjust the padding as a percentage of the container */
+            font-size:3rem;  
+      }
+        .container {
+           height:250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+      
+      
+       
+.footer {
+    padding-block: 1rem;
+    background-color: #151823;
+    color: #666873;
+}
+.footer__container {
+    max-width: 116rem;
+    margin: auto;
+    padding: 0 1.5rem;
+}
+
+.footer__top {
+    display: grid;
+    grid-template-columns: 
+    repeat(auto-fit, minmax(20rem, 1fr));
+    row-gap: 2rem;
+}
+.footer__title {
+    font-size: 1.8rem;
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+.footer__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.footer__list-item {
+    list-style: none;
+}
+.footer__list-link {
+    text-decoration: none;
+    color: inherit;
+    transition: color .25s;
+}
+.footer__list-link:hover {
+    color: #fff;
+}
+
+.company__info {
+    grid-column: 1/-1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-right: 5rem;
+}
+.company__logo {
+    color: #fff;
+}
+.company__info ul {
+    flex-direction: row;
+}
+.copyright {
+    margin-top: auto;
+}
+@media screen and (min-width: 40em) {
+    .company__info {
+        grid-column: span 2;
+    }
+}
+      
+      
+ 
+      
+      
+      
+      
+      
+      
+      
+    </style>
+    <script type="text/javascript">
+        function main() {
+            var inputWord = prompt("Enter a word:");
+            var naturalNum = parseInt(prompt("Enter a natural number:"));
+            if (!isNaN(naturalNum)) {
+                var encryptedWord = "";
+                for (var i = 0; i < inputWord.length; i++) {
+                    encryptedWord += String.fromCharCode(inputWord.charCodeAt(i) + naturalNum);
+                }
+                alert("Encrypted Word: " + encryptedWord);
+            } else {
+                alert("Invalid input for the natural number.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Encryption/Decryption</h1>
+        <button onclick="main()">Encrypt</button>
+    </div>
+  </body>
+   <footer class="footer">
+            <div class="footer__container">
+                     <h6 class="footer__title">jsfandom</h6>
+                        <ul class="footer__list">
+                            <li class="footer__list-item">
+                                <a href="https://jsfandom.glitch.me/eniweb.html" class="footer__list-link">Encyccription</a>
+                            </li>
+                            <li class="footer__list-item">
+                                <a href="https://jsfandom.glitch.me/random.html" class="footer__list-link">Random num</a>
+                            </li>
+                            <li class="footer__list-item">
+                                <a href="" class="footer__list-link"></a>
+                            </li>
+                            <li class="footer__list-item">
+                                <a href="" class="footer__list-link"></a>
+                            </li>
+                        </ul>
+                     <img src="https://cdn.glitch.global/a76ce7c5-684c-4314-a145-b0be08281135/QR_eniwe.png?v=1704277895825">
+                  </div>
+       
+        </footer>  
+</html>
