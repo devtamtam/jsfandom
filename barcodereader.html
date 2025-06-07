@@ -202,6 +202,9 @@
                     return;
                 }
 
+                // Show canvas before generating barcode
+                barcodeCanvas.style.display = 'block';
+
                 // Generate barcode
                 JsBarcode(barcodeCanvas, text, {
                     format: barcodeType,
@@ -220,6 +223,7 @@
                 
             } catch (error) {
                 showError(`Error generating barcode: ${error.message}`);
+                barcodeCanvas.style.display = 'none';
             }
         }
 
@@ -273,12 +277,31 @@
         }
 
         function resetAll() {
+            // Clear input field
             document.getElementById('text').value = '';
+            
+            // Reset barcode type to default
+            document.getElementById('barcode-type').selectedIndex = 0;
+            
+            // Clear canvas completely
             const canvas = document.getElementById('barcode');
             const ctx = canvas.getContext('2d');
+            
+            // Reset canvas size to clear it properly
+            canvas.width = canvas.width;
+            
+            // Clear any remaining canvas content
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Reset canvas style
+            canvas.style.display = 'none';
+            
+            // Clear text and error messages
             document.getElementById('barcode-text').textContent = '';
             document.getElementById('error-message').style.display = 'none';
+            document.getElementById('error-message').textContent = '';
+            
+            // Hide buttons
             document.getElementById('print-button').style.display = 'none';
             document.getElementById('reset-button').style.display = 'none';
         }
