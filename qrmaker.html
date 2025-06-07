@@ -27,12 +27,13 @@
             color: white;
         }
 
- #qrcode {
-    background: white;
-    padding: 24px; /* Increase/decrease for more/less white space */
-    border-radius: 8px; /* Optional: rounded corners */
-    display: inline-block;
-}
+        #qrcode {
+            background: white;
+            padding: 40px; /* Increased padding for better scanner detection */
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
       
         #qrcode-container {
             display: flex;
@@ -42,11 +43,12 @@
             margin-top: 20px;
         }
         #url-text {
-            margin-top: 10px;
+            margin-top: 15px;
             color: white;
             text-align: center;
             word-break: break-all;
-            max-width: 256px;
+            max-width: 320px;
+            font-size: 14px;
         }
         .button {
             display: inline-block;
@@ -85,6 +87,9 @@
                 top: 50%;
                 transform: translate(-50%, -50%);
             }
+            #qrcode {
+                padding: 50px; /* Even more padding for printed version */
+            }
         }
     </style>
 </head>
@@ -111,7 +116,9 @@
                     text: text,
                     width: 256,
                     height: 256,
-                    margin: 12,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M // Medium error correction for better scanning
                 });
                 urlTextElement.textContent = text; // Display the URL text below QR code
                 document.getElementById('print-button').style.display = 'inline-block';
