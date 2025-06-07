@@ -16,43 +16,66 @@
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            background:#233b47;
+            background: #233b47;
+            padding: 15px;
+            box-sizing: border-box;
         }
         h1 {
             color: white;
+            margin: 10px 0 15px 0;
+            font-size: 28px;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            width: 280px;
+            text-align: center;
         }
 
         #qrcode {
             background: white;
-            padding: 40px; /* Increased padding for better scanner detection */
+            padding: 25px;
             border-radius: 8px;
             display: inline-block;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 10px 0;
         }
       
         #qrcode-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 24px;
-            margin-top: 20px;
+            padding: 15px;
+            margin: 10px 0;
         }
+
         #url-text {
-            margin-top: 15px;
+            margin-top: 10px;
             color: white;
             text-align: center;
             word-break: break-all;
             max-width: 320px;
-            font-size: 14px;
+            font-size: 13px;
         }
+
         .button {
             display: inline-block;
-            margin-top: 10px;
+            margin: 5px;
             padding: 10px 20px;
             background-color: #007BFF;
             color: white;
@@ -60,20 +83,36 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 14px;
+            transition: background-color 0.3s;
         }
+
         .button:hover {
             background-color: #0056b3;
         }
+
         #print-button, #reset-button {
             display: none;
         }
+
         #reset-button {
             background-color: #dc3545;
         }
+
         #reset-button:hover {
             background-color: #c82333;
         }
+
+        .error-message {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+            margin: 8px 0;
+            display: none;
+            font-size: 13px;
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -88,50 +127,114 @@
                 transform: translate(-50%, -50%);
             }
             #qrcode {
-                padding: 50px; /* Even more padding for printed version */
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+                margin: 5px 0 10px 0;
+            }
+            input[type="text"] {
+                width: 220px;
+            }
+            .button {
+                padding: 8px 16px;
+                font-size: 13px;
             }
         }
     </style>
 </head>
 <body>
     <h1>QR Code Generator</h1>
-    <input type="text" id="text" placeholder="Enter URL here">
-    <button class="button" onclick="generateQRCode()">Generate QR Code</button>
+    
+    <div class="input-container">
+        <input type="text" id="text" placeholder="Enter URL here">
+        <button class="button" onclick="generateQRCode()">Generate QR Code</button>
+    </div>
+
+    <div class="error-message" id="error-message"></div>
+
     <div id="qrcode-container">
         <div id="qrcode"></div>
         <p id="url-text"></p>
     </div>
-    <button id="print-button" class="button" onclick="window.print()">Print QR Code</button>
-    <button id="reset-button" class="button" onclick="resetAll()">Reset</button>
+
+    <div>
+        <button id="print-button" class="button" onclick="window.print()">Print QR Code</button>
+        <button id="reset-button" class="button" onclick="resetAll()">Reset</button>
+    </div>
+
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
         function generateQRCode() {
             const qrcodeContainer = document.getElementById('qrcode');
             const urlTextElement = document.getElementById('url-text');
-            qrcodeContainer.innerHTML = ''; // Clear any existing QR code
-            urlTextElement.textContent = ''; // Clear any existing URL text
-            const text = document.getElementById('text').value;
-            if (text) {
+            const errorElement = document.getElementById('error-message');
+            const text = document.getElementById('text').value.trim();
+            
+            // Clear previous error messages
+            errorElement.style.display = 'none';
+            errorElement.textContent = '';
+            
+            if (!text) {
+                showError('Please enter a URL or text to generate a QR code.');
+                return;
+            }
+
+            try {
+                // Clear any existing QR code
+                qrcodeContainer.innerHTML = '';
+                
+                // Generate QR code
                 new QRCode(qrcodeContainer, {
                     text: text,
                     width: 256,
                     height: 256,
                     colorDark: "#000000",
                     colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.M // Medium error correction for better scanning
+                    correctLevel: QRCode.CorrectLevel.M
                 });
-                urlTextElement.textContent = text; // Display the URL text below QR code
+                
+                urlTextElement.textContent = text;
                 document.getElementById('print-button').style.display = 'inline-block';
                 document.getElementById('reset-button').style.display = 'inline-block';
+                
+            } catch (error) {
+                showError(`Error generating QR code: ${error.message}`);
             }
         }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
         function resetAll() {
+            // Clear input field
             document.getElementById('text').value = '';
+            
+            // Clear QR code container
             document.getElementById('qrcode').innerHTML = '';
+            
+            // Clear text and error messages
             document.getElementById('url-text').textContent = '';
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('error-message').textContent = '';
+            
+            // Hide buttons
             document.getElementById('print-button').style.display = 'none';
             document.getElementById('reset-button').style.display = 'none';
         }
+
+        // Allow Enter key to generate QR code
+        document.getElementById('text').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                generateQRCode();
+            }
+        });
     </script>
 </body>
 </html>
