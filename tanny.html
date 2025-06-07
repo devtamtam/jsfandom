@@ -1,219 +1,698 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
-  
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-EELHQKTT7Z"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-EELHQKTT7Z');
-</script>
-
-  
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>単位を落とすな ～大学生の試練～</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 0 0 20px 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
         canvas {
-            border: 1px solid #000;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
             display: block;
-            margin: 20px auto;
+            background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        .restart-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
-
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="game-container">
+        <h1>単位を落とすな ～大学生の試練～</h1>
+        <canvas id="gameCanvas" width="900" height="700"></canvas>
+        <div class="controls">
+            <p>🖱️ マウスで移動 | 📚 授業をキャッチして単位を取得しよう！</p>
+        </div>
+    </div>
+    
+    <div class="game-over" id="gameOverScreen">
+        <h2 id="gameOverTitle">ゲーム終了！</h2>
+        <p id="finalScore"></p>
+        <p id="obtainedLectures"></p>
+        <p id="missedLectures"></p>
+        <p id="gradeResult"></p>
+        <button class="restart-btn" onclick="restartGame()">もう一度プレイ</button>
+    </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        
+        let gameState = 'playing'; // 'playing', 'gameOver'
+        let gameTime = 0;
+        let level = 1;
+        let spawnRate = 2000;
+        let comboCount = 0;
+        let maxCombo = 0;
 
         const player = {
-            x: canvas.width / 2 - 30,
-            y: canvas.height - 30,
-            width: 60,
-            height: 30,
-            color: "#00F",
-            speed: 5,
+            x: canvas.width / 2 - 40,
+            y: canvas.height - 60,
+            width: 80,
+            height: 40,
+            color: "#4A90E2",
+            speed: 8,
             unitsObtained: 0,
             unitsMissed: 0,
-            chances: {}
+            chances: {},
+            animation: 0
         };
 
         const lectures = {
             Monday: [
-                { name: "確率", difficulty: 1, color: "#800080" },
-                { name: "倫理", difficulty: 0.7, color: "#800080" },
-                { name: "制御", difficulty: 1.2, color: "#800080" },
-                { name: "設計演習", difficulty: 0.6, color: "#800080" }
+                { name: "確率統計", difficulty: 1, color: "#9B59B6", credits: 2 },
+                { name: "倫理学", difficulty: 0.7, color: "#3498DB", credits: 1 },
+                { name: "制御工学", difficulty: 1.5, color: "#E74C3C", credits: 3 },
+                { name: "設計演習I", difficulty: 0.8, color: "#2ECC71", credits: 2 }
             ],
             Tuesday: [
-                { name: "機力学", difficulty: 3, color: "#FF0000" },
-                { name: "設計i", difficulty: 1, color: "#FF0000" },
-                { name: "応用解析ii", difficulty: 2, color: "#FF0000" }
+                { name: "機械力学", difficulty: 2.5, color: "#E67E22", credits: 3 },
+                { name: "設計製図", difficulty: 1.2, color: "#F39C12", credits: 2 },
+                { name: "応用解析II", difficulty: 2.8, color: "#8E44AD", credits: 4 }
+            ],
+            Wednesday: [
+                { name: "熱力学", difficulty: 2.2, color: "#C0392B", credits: 3 },
+                { name: "材料力学", difficulty: 2.0, color: "#D35400", credits: 3 },
+                { name: "電気回路", difficulty: 1.8, color: "#27AE60", credits: 2 }
+            ],
+            Thursday: [
+                { name: "流体力学", difficulty: 2.6, color: "#2980B9", credits: 3 },
+                { name: "プログラミング", difficulty: 1.3, color: "#16A085", credits: 2 },
+                { name: "線形代数", difficulty: 1.9, color: "#8E44AD", credits: 3 }
+            ],
+            Friday: [
+                { name: "量子力学", difficulty: 3.2, color: "#7F8C8D", credits: 4 },
+                { name: "英語", difficulty: 0.9, color: "#95A5A6", credits: 1 },
+                { name: "体育", difficulty: 0.5, color: "#1ABC9C", credits: 1 }
             ]
         };
 
-        const createdLectures = {
-            Monday: [],
-            Tuesday: []
-        };
-
+        const particles = [];
         const lectureBlocks = [];
+        const powerUps = [];
 
+        // Initialize player chances
         Object.keys(lectures).forEach(day => {
             lectures[day].forEach(lecture => {
                 player.chances[lecture.name] = true;
             });
         });
 
-        function getRandomLecture(day) {
-            const remainingLectures = lectures[day].filter(lecture => player.chances[lecture.name] && !createdLectures[day].includes(lecture.name));
-            if (remainingLectures.length === 0) {
-                return null;
-            }
-            return remainingLectures[Math.floor(Math.random() * remainingLectures.length)];
+        // Particle system for effects
+        function createParticle(x, y, color, type = 'success') {
+            const particle = {
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8 - 3,
+                life: 1.0,
+                color: color,
+                size: Math.random() * 8 + 4,
+                type: type
+            };
+            particles.push(particle);
         }
 
-        function createLectureBlock(day) {
-            const lecture = getRandomLecture(day);
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3; // gravity
+                p.life -= 0.02;
+                p.size *= 0.98;
+                
+                if (p.life <= 0 || p.size < 1) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function getRandomLecture(day) {
+            const availableLectures = lectures[day].filter(lecture => player.chances[lecture.name]);
+            if (availableLectures.length === 0) return null;
+            return availableLectures[Math.floor(Math.random() * availableLectures.length)];
+        }
+
+        function createLectureBlock() {
+            const days = Object.keys(lectures);
+            const randomDay = days[Math.floor(Math.random() * days.length)];
+            const lecture = getRandomLecture(randomDay);
+            
             if (!lecture) return null;
 
-            createdLectures[day].push(lecture.name);
-
-            const speedMultiplier = lecture.difficulty;
-            const blockWidth = 100;
-            const blockHeight = 30;
+            const blockWidth = 140;
+            const blockHeight = 50;
+            const speed = Math.max(1.5, 1 + (lecture.difficulty * 0.5) + (level * 0.3));
 
             return {
                 x: Math.random() * (canvas.width - blockWidth),
-                y: 0,
+                y: -blockHeight,
                 width: blockWidth,
                 height: blockHeight,
                 color: lecture.color,
-                speed: 2 * speedMultiplier,
+                speed: speed,
                 lecture: lecture,
-                day: day
+                day: randomDay,
+                wobble: 0,
+                shadow: 5
             };
         }
 
-        function gameLoop() {
-            window.addEventListener("mousemove", function (e) {
-                player.x = e.clientX - canvas.getBoundingClientRect().left - player.width / 2;
-            });
-
-            Object.keys(lectures).forEach(day => {
-                lectureBlocks.forEach(block => {
-                    if (block.day === day) {
-                        block.y += block.speed;
-
-                        if (
-                            player.x < block.x + block.width &&
-                            player.x + player.width > block.x &&
-                            player.y < block.y + block.height &&
-                            player.y + player.height > block.y
-                        ) {
-                            if (player.chances[block.lecture.name]) {
-                                player.unitsObtained += 1;
-                                player.chances[block.lecture.name] = false;
-                                removeLectureBlock(block);
-                            }
-                        }
-
-                        if (block.y > canvas.height) {
-                            if (player.chances[block.lecture.name]) {
-                                player.unitsMissed += 1;
-                                player.chances[block.lecture.name] = false;
-                                removeLectureBlock(block);
-                            }
-                        }
-                    }
-                });
-            });
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer();
-            drawLectureBlocks();
-            drawScore();
-
-            requestAnimationFrame(gameLoop);
+        function createPowerUp() {
+            if (Math.random() < 0.15) { // 15% chance
+                const types = ['slow', 'magnet', 'bonus'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                return {
+                    x: Math.random() * (canvas.width - 40),
+                    y: -40,
+                    width: 40,
+                    height: 40,
+                    type: type,
+                    speed: 2,
+                    rotation: 0,
+                    pulse: 0
+                };
+            }
+            return null;
         }
 
         function drawPlayer() {
-            ctx.fillStyle = player.color;
+            // Player shadow
+            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+            ctx.fillRect(player.x + 5, player.y + 5, player.width, player.height);
+            
+            // Player body with gradient
+            const gradient = ctx.createLinearGradient(player.x, player.y, player.x, player.y + player.height);
+            gradient.addColorStop(0, player.color);
+            gradient.addColorStop(1, "#2C5282");
+            
+            ctx.fillStyle = gradient;
             ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Player border
+            ctx.strokeStyle = "#1A365D";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            
+            // Player emoji/face
+            ctx.fillStyle = "white";
+            ctx.font = "24px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("🎓", player.x + player.width/2, player.y + player.height/2 + 8);
         }
 
         function drawLectureBlocks() {
             lectureBlocks.forEach(block => {
-                ctx.fillStyle = block.color;
-                ctx.fillRect(block.x, block.y, block.width, block.height);
-
-                ctx.fillStyle = "#FFF"; // 白色の文字色に変更
-                ctx.font = "12px Arial";
-                ctx.fillText(block.lecture.name, block.x + 10, block.y + 20);
+                // Shadow
+                ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+                ctx.fillRect(block.x + block.shadow, block.y + block.shadow, block.width, block.height);
+                
+                // Block gradient
+                const gradient = ctx.createLinearGradient(block.x, block.y, block.x, block.y + block.height);
+                gradient.addColorStop(0, block.color);
+                gradient.addColorStop(1, adjustBrightness(block.color, -0.3));
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(block.x, block.y + Math.sin(block.wobble) * 2, block.width, block.height);
+                
+                // Border
+                ctx.strokeStyle = adjustBrightness(block.color, -0.5);
+                ctx.lineWidth = 2;
+                ctx.strokeRect(block.x, block.y + Math.sin(block.wobble) * 2, block.width, block.height);
+                
+                // Text
+                ctx.fillStyle = "white";
+                ctx.font = "bold 12px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(block.lecture.name, block.x + block.width/2, block.y + 20);
+                ctx.font = "10px Arial";
+                ctx.fillText(`${block.lecture.credits}単位`, block.x + block.width/2, block.y + 35);
+                
+                block.wobble += 0.1;
             });
         }
 
-        function drawScore() {
-            ctx.fillStyle = "#000";
-            ctx.font = "20px Arial";
-            ctx.fillText(`取得単位数: ${player.unitsObtained}`, 10, 30);
-            ctx.fillText(`落とした単位数: ${player.unitsMissed}`, 10, 60);
+        function drawPowerUps() {
+            powerUps.forEach(powerUp => {
+                ctx.save();
+                ctx.translate(powerUp.x + powerUp.width/2, powerUp.y + powerUp.height/2);
+                ctx.rotate(powerUp.rotation);
+                
+                // Pulsing effect
+                const scale = 1 + Math.sin(powerUp.pulse) * 0.2;
+                ctx.scale(scale, scale);
+                
+                // Power-up visuals
+                switch(powerUp.type) {
+                    case 'slow':
+                        ctx.fillStyle = "#3498DB";
+                        ctx.fillRect(-20, -20, 40, 40);
+                        ctx.fillStyle = "white";
+                        ctx.font = "20px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText("⏰", 0, 8);
+                        break;
+                    case 'magnet':
+                        ctx.fillStyle = "#E74C3C";
+                        ctx.fillRect(-20, -20, 40, 40);
+                        ctx.fillStyle = "white";
+                        ctx.font = "20px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText("🧲", 0, 8);
+                        break;
+                    case 'bonus':
+                        ctx.fillStyle = "#F39C12";
+                        ctx.fillRect(-20, -20, 40, 40);
+                        ctx.fillStyle = "white";
+                        ctx.font = "20px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText("⭐", 0, 8);
+                        break;
+                }
+                
+                powerUp.rotation += 0.05;
+                powerUp.pulse += 0.1;
+                ctx.restore();
+            });
         }
 
-        function removeLectureBlock(block) {
-            const index = lectureBlocks.indexOf(block);
-            if (index > -1) {
-                lectureBlocks.splice(index, 1);
+        function drawUI() {
+            // Semi-transparent background for UI
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(0, 0, canvas.width, 80);
+            
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "bold 18px Arial";
+            ctx.textAlign = "left";
+            
+            // Stats
+            ctx.fillText(`📚 取得: ${player.unitsObtained}単位`, 20, 25);
+            ctx.fillText(`❌ 落単: ${player.unitsMissed}`, 20, 50);
+            
+            ctx.fillText(`🎯 レベル: ${level}`, 250, 25);
+            ctx.fillText(`🔥 コンボ: ${comboCount}`, 250, 50);
+            
+            // Progress bar for level
+            const progress = (gameTime % 30000) / 30000;
+            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+            ctx.fillRect(450, 15, 200, 15);
+            ctx.fillStyle = "#4ECDC4";
+            ctx.fillRect(450, 15, 200 * progress, 15);
+            
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "12px Arial";
+            ctx.fillText("次のレベルまで", 450, 45);
+            
+            // Time
+            const minutes = Math.floor(gameTime / 60000);
+            const seconds = Math.floor((gameTime % 60000) / 1000);
+            ctx.font = "bold 18px Arial";
+            ctx.textAlign = "right";
+            ctx.fillText(`⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`, canvas.width - 20, 25);
+            
+            // Grade
+            const grade = calculateGrade();
+            ctx.fillText(`📊 成績: ${grade}`, canvas.width - 20, 50);
+        }
+
+        function calculateGrade() {
+            const totalUnits = player.unitsObtained + player.unitsMissed;
+            if (totalUnits === 0) return "未評価";
+            
+            const percentage = (player.unitsObtained / totalUnits) * 100;
+            if (percentage >= 90) return "S";
+            if (percentage >= 80) return "A";
+            if (percentage >= 70) return "B";
+            if (percentage >= 60) return "C";
+            return "F";
+        }
+
+        function adjustBrightness(color, amount) {
+            const usePound = color[0] === "#";
+            const col = usePound ? color.slice(1) : color;
+            const num = parseInt(col, 16);
+            let r = (num >> 16) + amount * 255;
+            let g = (num >> 8 & 0x00FF) + amount * 255;
+            let b = (num & 0x0000FF) + amount * 255;
+            r = r > 255 ? 255 : r < 0 ? 0 : r;
+            g = g > 255 ? 255 : g < 0 ? 0 : g;
+            b = b > 255 ? 255 : b < 0 ? 0 : b;
+            return (usePound ? "#" : "") + String("000000" + (r << 16 | g << 8 | b).toString(16)).slice(-6);
+        }
+
+        function checkCollisions() {
+            // Lecture blocks collision
+            for (let i = lectureBlocks.length - 1; i >= 0; i--) {
+                const block = lectureBlocks[i];
+                
+                if (
+                    player.x < block.x + block.width &&
+                    player.x + player.width > block.x &&
+                    player.y < block.y + block.height &&
+                    player.y + player.height > block.y
+                ) {
+                    if (player.chances[block.lecture.name]) {
+                        player.unitsObtained += block.lecture.credits;
+                        player.chances[block.lecture.name] = false;
+                        comboCount++;
+                        maxCombo = Math.max(maxCombo, comboCount);
+                        
+                        // Success particles
+                        for (let j = 0; j < 15; j++) {
+                            createParticle(
+                                block.x + block.width/2,
+                                block.y + block.height/2,
+                                block.color,
+                                'success'
+                            );
+                        }
+                        
+                        lectureBlocks.splice(i, 1);
+                    }
+                }
+                
+                // Remove blocks that went off screen
+                else if (block.y > canvas.height) {
+                    if (player.chances[block.lecture.name]) {
+                        player.unitsMissed += block.lecture.credits;
+                        player.chances[block.lecture.name] = false;
+                        comboCount = 0; // Reset combo on miss
+                        
+                        // Miss particles
+                        for (let j = 0; j < 10; j++) {
+                            createParticle(
+                                block.x + block.width/2,
+                                canvas.height - 50,
+                                "#E74C3C",
+                                'miss'
+                            );
+                        }
+                    }
+                    lectureBlocks.splice(i, 1);
+                }
+            }
+            
+            // Power-ups collision
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                const powerUp = powerUps[i];
+                
+                if (
+                    player.x < powerUp.x + powerUp.width &&
+                    player.x + player.width > powerUp.x &&
+                    player.y < powerUp.y + powerUp.height &&
+                    player.y + player.height > powerUp.y
+                ) {
+                    activatePowerUp(powerUp.type);
+                    powerUps.splice(i, 1);
+                }
+                else if (powerUp.y > canvas.height) {
+                    powerUps.splice(i, 1);
+                }
             }
         }
 
-        function spawnLectureBlocks() {
-            Object.keys(lectures).forEach(day => {
-                const block = createLectureBlock(day);
-                if (block) {
-                    lectureBlocks.push(block);
-                }
-            });
+        let activeEffects = {};
 
-            setTimeout(spawnLectureBlocks, 2000); // 2秒ごとに新しい授業ブロックを生成
+        function activatePowerUp(type) {
+            switch(type) {
+                case 'slow':
+                    activeEffects.slow = 5000; // 5 seconds
+                    break;
+                case 'magnet':
+                    activeEffects.magnet = 3000; // 3 seconds
+                    break;
+                case 'bonus':
+                    player.unitsObtained += 2;
+                    break;
+            }
+            
+            // Visual feedback
+            for (let i = 0; i < 20; i++) {
+                createParticle(
+                    player.x + player.width/2,
+                    player.y + player.height/2,
+                    "#F39C12",
+                    'powerup'
+                );
+            }
         }
 
-        function gameOver() {
+        function updateEffects() {
+            Object.keys(activeEffects).forEach(effect => {
+                activeEffects[effect] -= 16; // Assuming 60fps
+                if (activeEffects[effect] <= 0) {
+                    delete activeEffects[effect];
+                }
+            });
+        }
+
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            
+            gameTime += 16; // Assuming 60fps
+            
+            // Level progression
+            if (gameTime % 30000 === 0 && gameTime > 0) {
+                level++;
+                spawnRate = Math.max(800, spawnRate - 200);
+            }
+            
+            // Mouse movement
+            canvas.addEventListener("mousemove", function (e) {
+                const rect = canvas.getBoundingClientRect();
+                player.x = e.clientX - rect.left - player.width / 2;
+                player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+            });
+            
+            // Update lecture blocks
+            lectureBlocks.forEach(block => {
+                let speed = block.speed;
+                if (activeEffects.slow) speed *= 0.3;
+                block.y += speed;
+                
+                // Magnet effect
+                if (activeEffects.magnet) {
+                    const dx = (player.x + player.width/2) - (block.x + block.width/2);
+                    const dy = (player.y + player.height/2) - (block.y + block.height/2);
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance < 150) {
+                        block.x += dx * 0.05;
+                        block.y += dy * 0.05;
+                    }
+                }
+            });
+            
+            // Update power-ups
+            powerUps.forEach(powerUp => {
+                let speed = powerUp.speed;
+                if (activeEffects.slow) speed *= 0.3;
+                powerUp.y += speed;
+            });
+            
+            updateEffects();
+            updateParticles();
+            checkCollisions();
+            
+            // Check game over condition
+            const totalLectures = Object.values(lectures).flat().length;
+            const completedLectures = Object.keys(player.chances).filter(name => !player.chances[name]).length;
+            
+            if (completedLectures >= totalLectures) {
+                gameState = 'gameOver';
+                showGameOver();
+                return;
+            }
+            
+            // Clear and draw
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawPlayer();
+            drawLectureBlocks();
+            drawPowerUps();
+            drawParticles();
+            drawUI();
+            
+            requestAnimationFrame(gameLoop);
+        }
 
-            ctx.fillStyle = "#000";
-            ctx.font = "30px Arial";
-            ctx.fillText("ゲーム終了！", canvas.width             / 2 - 15);
+        function spawnLectureBlocks() {
+            if (gameState !== 'playing') return;
+            
+            const block = createLectureBlock();
+            if (block) {
+                lectureBlocks.push(block);
+            }
+            
+            const powerUp = createPowerUp();
+            if (powerUp) {
+                powerUps.push(powerUp);
+            }
+            
+            setTimeout(spawnLectureBlocks, spawnRate);
+        }
 
-ctx.font = "20px Arial";
-ctx.fillText("取得単位数: " + player.unitsObtained, canvas.width / 2 - 80, canvas.height / 2 + 20);
-ctx.fillText("落とした単位数: " + player.unitsMissed, canvas.width / 2 - 90, canvas.height / 2 + 50);
+        function showGameOver() {
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            const grade = calculateGrade();
+            
+            document.getElementById('finalScore').textContent = 
+                `取得単位数: ${player.unitsObtained} | 落とした単位数: ${player.unitsMissed}`;
+            
+            document.getElementById('gradeResult').textContent = 
+                `最終成績: ${grade} | 最大コンボ: ${maxCombo}`;
+            
+            // Show obtained and missed lectures
+            const obtainedLectures = [];
+            const missedLectures = [];
+            
+            Object.keys(lectures).forEach(day => {
+                lectures[day].forEach(lecture => {
+                    if (!player.chances[lecture.name]) {
+                        if (player.unitsObtained > 0) {
+                            obtainedLectures.push(lecture.name);
+                        } else {
+                            missedLectures.push(lecture.name);
+                        }
+                    }
+                });
+            });
+            
+            document.getElementById('obtainedLectures').textContent = 
+                `取得した授業: ${obtainedLectures.join(', ') || 'なし'}`;
+            document.getElementById('missedLectures').textContent = 
+                `落とした授業: ${missedLectures.join(', ') || 'なし'}`;
+            
+            let title = "ゲーム終了！";
+            if (grade === 'S') title = "🏆 素晴らしい！完璧な成績です！";
+            else if (grade === 'A') title = "🎉 優秀！とても良い成績です！";
+            else if (grade === 'B') title = "👍 良好！まずまずの成績です！";
+            else if (grade === 'C') title = "😅 合格！ギリギリでした...";
+            else title = "😱 不合格...もう一度頑張りましょう！";
+            
+            document.getElementById('gameOverTitle').textContent = title;
+            gameOverScreen.style.display = 'block';
+        }
 
-ctx.fillText("取得した授業: " + getObtainedLectures(), canvas.width / 2 - 100, canvas.height / 2 + 80);
-ctx.fillText("落とした授業: " + getMissedLectures(), canvas.width / 2 - 100, canvas.height / 2 + 110);
-}
+        function restartGame() {
+            // Reset game state
+            gameState = 'playing';
+            gameTime = 0;
+            level = 1;
+            spawnRate = 2000;
+            comboCount = 0;
+            maxCombo = 0;
+            
+            // Reset player
+            player.x = canvas.width / 2 - 40;
+            player.unitsObtained = 0;
+            player.unitsMissed = 0;
+            player.chances = {};
+            
+            // Reset arrays
+            lectureBlocks.length = 0;
+            powerUps.length = 0;
+            particles.length = 0;
+            activeEffects = {};
+            
+            // Reinitialize chances
+            Object.keys(lectures).forEach(day => {
+                lectures[day].forEach(lecture => {
+                    player.chances[lecture.name] = true;
+                });
+            });
+            
+            // Hide game over screen
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            // Restart game loops
+            gameLoop();
+            spawnLectureBlocks();
+        }
 
-function getObtainedLectures() {
-return Object.keys(lectures).flatMap(day =>
-    lectures[day].filter(lecture => !player.chances[lecture.name] && player.unitsObtained > 0)
-).map(lecture => lecture.name).join(", ");
-}
-
-function getMissedLectures() {
-return Object.keys(lectures).flatMap(day =>
-    lectures[day].filter(lecture => !player.chances[lecture.name] && player.unitsMissed > 0)
-).map(lecture => lecture.name).join(", ");
-}
-
-gameLoop();
-spawnLectureBlocks();
-</script>
+        // Start the game
+        gameLoop();
+        spawnLectureBlocks();
+    </script>
 </body>
 </html>
