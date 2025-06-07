@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EELHQKTT7Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EELHQKTT7Z');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #233b47;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+        }
+
+        select {
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            width: 200px;
+            background: white;
+        }
+
+        #barcode {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+      
+        #barcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        #barcode-text {
+            margin-top: 15px;
+            color: white;
+            text-align: center;
+            word-break: break-all;
+            max-width: 400px;
+            font-size: 14px;
+        }
+
+        .button {
+            display: inline-block;
+            margin: 10px 5px;
+            padding: 12px 24px;
+            background-color: #007BFF;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        #print-button, #reset-button {
+            display: none;
+        }
+
+        #reset-button {
+            background-color: #dc3545;
+        }
+
+        #reset-button:hover {
+            background-color: #c82333;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #barcode-container, #barcode-container * {
+                visibility: visible;
+            }
+            #barcode-container {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+            #barcode {
+                padding: 60px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            input[type="text"] {
+                width: 250px;
+            }
+            select {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Barcode Generator</h1>
+    
+    <div class="input-container">
+        <input type="text" id="text" placeholder="Enter text or numbers here">
+        <select id="barcode-type">
+            <option value="CODE128">Code 128 (Alphanumeric)</option>
+            <option value="CODE39">Code 39 (Alphanumeric)</option>
+            <option value="EAN13">EAN-13 (13 digits)</option>
+            <option value="EAN8">EAN-8 (8 digits)</option>
+            <option value="UPC">UPC-A (12 digits)</option>
+            <option value="ITF14">ITF-14 (14 digits)</option>
+            <option value="MSI">MSI (Numbers only)</option>
+            <option value="pharmacode">Pharmacode</option>
+        </select>
+        <button class="button" onclick="generateBarcode()">Generate Barcode</button>
+    </div>
+
+    <div class="error-message" id="error-message"></div>
+
+    <div id="barcode-container">
+        <canvas id="barcode"></canvas>
+        <p id="barcode-text"></p>
+    </div>
+
+    <div>
+        <button id="print-button" class="button" onclick="window.print()">Print Barcode</button>
+        <button id="reset-button" class="button" onclick="resetAll()">Reset</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <script>
+        function generateBarcode() {
+            const barcodeCanvas = document.getElementById('barcode');
+            const barcodeTextElement = document.getElementById('barcode-text');
+            const errorElement = document.getElementById('error-message');
+            const text = document.getElementById('text').value.trim();
+            const barcodeType = document.getElementById('barcode-type').value;
+            
+            // Clear previous error messages
+            errorElement.style.display = 'none';
+            errorElement.textContent = '';
+            
+            if (!text) {
+                showError('Please enter text or numbers to generate a barcode.');
+                return;
+            }
+
+            try {
+                // Validate input based on barcode type
+                if (!validateInput(text, barcodeType)) {
+                    return;
+                }
+
+                // Generate barcode
+                JsBarcode(barcodeCanvas, text, {
+                    format: barcodeType,
+                    width: 2,
+                    height: 100,
+                    displayValue: true,
+                    fontSize: 20,
+                    margin: 10,
+                    background: "#ffffff",
+                    lineColor: "#000000"
+                });
+
+                barcodeTextElement.textContent = `${barcodeType}: ${text}`;
+                document.getElementById('print-button').style.display = 'inline-block';
+                document.getElementById('reset-button').style.display = 'inline-block';
+                
+            } catch (error) {
+                showError(`Error generating barcode: ${error.message}`);
+            }
+        }
+
+        function validateInput(text, type) {
+            switch(type) {
+                case 'EAN13':
+                    if (!/^\d{12,13}$/.test(text)) {
+                        showError('EAN-13 requires exactly 12 or 13 digits.');
+                        return false;
+                    }
+                    break;
+                case 'EAN8':
+                    if (!/^\d{7,8}$/.test(text)) {
+                        showError('EAN-8 requires exactly 7 or 8 digits.');
+                        return false;
+                    }
+                    break;
+                case 'UPC':
+                    if (!/^\d{11,12}$/.test(text)) {
+                        showError('UPC-A requires exactly 11 or 12 digits.');
+                        return false;
+                    }
+                    break;
+                case 'ITF14':
+                    if (!/^\d{13,14}$/.test(text)) {
+                        showError('ITF-14 requires exactly 13 or 14 digits.');
+                        return false;
+                    }
+                    break;
+                case 'MSI':
+                case 'pharmacode':
+                    if (!/^\d+$/.test(text)) {
+                        showError(`${type} accepts numbers only.`);
+                        return false;
+                    }
+                    break;
+                case 'CODE39':
+                    if (!/^[A-Z0-9\-. $/+%]*$/.test(text.toUpperCase())) {
+                        showError('Code 39 accepts A-Z, 0-9, and special characters (- . $ / + %).');
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function resetAll() {
+            document.getElementById('text').value = '';
+            const canvas = document.getElementById('barcode');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('barcode-text').textContent = '';
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('print-button').style.display = 'none';
+            document.getElementById('reset-button').style.display = 'none';
+        }
+
+        // Allow Enter key to generate barcode
+        document.getElementById('text').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                generateBarcode();
+            }
+        });
+    </script>
+</body>
+</html>
