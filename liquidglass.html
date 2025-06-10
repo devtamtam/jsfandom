@@ -78,7 +78,7 @@
             max-width: 400px;
         }
 
-        /* General Button Styles */
+        /* General Button Styles - UPDATED */
         button {
             height: 80px;
             width: 100%;
@@ -86,7 +86,8 @@
             font-size: 1.5rem;
             cursor: pointer;
             border: 0;
-            background: rgba(76, 175, 80, 0.8);
+            /* Changed to transparent background */
+            background: rgba(255, 255, 255, 0.15); 
             color: white;
             border-radius: 15px;
             transition: all 0.3s ease;
@@ -114,8 +115,10 @@
             left: 100%;
         }
 
+        /* UPDATED hover effect */
         button:hover {
-            background: rgba(69, 160, 73, 0.9);
+            /* Changed to a slightly more opaque transparent background */
+            background: rgba(255, 255, 255, 0.25);
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             filter: url(#displacement-button-hover);
@@ -141,13 +144,13 @@
             50% { transform: translateY(-10px); }
         }
         
-        /* NEW: Styles for Background Changer UI */
+        /* Styles for Background Changer UI */
         .background-changer {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
-            margin-bottom: 2.5rem; /* Increased margin */
+            margin-bottom: 2.5rem;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
@@ -177,19 +180,20 @@
             border-color: rgba(255, 255, 255, 0.5);
         }
 
+        /* UPDATED Background Changer Button Styles */
         .background-changer button {
-            /* Using a more compact button style */
             height: 50px;
-            width: auto; /* Auto width based on content */
+            width: auto;
             padding: 0 25px;
             font-size: 1rem;
             font-weight: 600;
-            background: rgba(76, 175, 80, 0.7);
-            filter: none; /* Removing filter for this specific button */
+            /* Removed specific green background to inherit the transparent style */
+            filter: none;
         }
         
         .background-changer button:hover {
-             background: rgba(69, 160, 73, 1);
+             /* Adjusted hover to match the main button hover effect */
+             background: rgba(255, 255, 255, 0.3); 
              transform: translateY(-2px);
              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
              filter: none;
@@ -261,7 +265,7 @@
 
     <div class="title">Tools & Games</div>
     
-    <!-- NEW: Background Changer Element -->
+    <!-- Background Changer Element -->
     <div class="background-changer">
         <input type="text" id="bgUrlInput" placeholder="Enter image URL to change background">
         <button id="changeBgBtn">Change Background</button>
@@ -279,7 +283,7 @@
   
     <footer></footer>
 
-    <!-- NEW: JavaScript to handle background changing -->
+    <!-- JavaScript to handle background changing -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Get references to the UI elements
