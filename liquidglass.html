@@ -6,16 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>index</title>
     <style>
+        /* General Body Styles */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             background: linear-gradient(135deg, #2e8b57 0%, #228b22 100%);
-            margin-top: 200px;
+            /* Added for smoother background transitions */
+            transition: background 0.5s ease-in-out;
+            margin-top: 50px; /* Adjusted margin for new element */
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
         }
 
+        /* Frosted Glass Overlay */
         body::before {
             content: '';
             position: fixed;
@@ -29,6 +33,7 @@
             z-index: -1;
         }
 
+        /* Main Container for Buttons */
         .container {
             height: auto;
             display: flex;
@@ -48,6 +53,7 @@
             position: relative;
         }
 
+        /* Hover Glow Effect for Container */
         .container::before {
             content: '';
             position: absolute;
@@ -72,6 +78,7 @@
             max-width: 400px;
         }
 
+        /* General Button Styles */
         button {
             height: 80px;
             width: 100%;
@@ -118,6 +125,7 @@
             transform: translateY(-1px);
         }
 
+        /* Title Styles */
         .title {
             color: white;
             font-size: 2.5rem;
@@ -126,20 +134,77 @@
             text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             animation: float 6s ease-in-out infinite;
         }
-
+        
+        /* Floating Animation */
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
+        
+        /* NEW: Styles for Background Changer UI */
+        .background-changer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2.5rem; /* Increased margin */
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 1rem;
+        }
 
+        .background-changer input {
+            flex-grow: 1;
+            height: 50px;
+            padding: 0 20px;
+            font-size: 1rem;
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .background-changer input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .background-changer input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .background-changer button {
+            /* Using a more compact button style */
+            height: 50px;
+            width: auto; /* Auto width based on content */
+            padding: 0 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: rgba(76, 175, 80, 0.7);
+            filter: none; /* Removing filter for this specific button */
+        }
+        
+        .background-changer button:hover {
+             background: rgba(69, 160, 73, 1);
+             transform: translateY(-2px);
+             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+             filter: none;
+        }
+        
+        /* Footer */
         footer {
             margin-top: 3rem;
             height: 50px;
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
             body {
-                margin-top: 100px;
+                margin-top: 50px;
             }
             
             .container {
@@ -155,6 +220,16 @@
                 height: 70px;
                 font-size: 1.3rem;
             }
+
+            .background-changer {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .background-changer input,
+            .background-changer button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -163,24 +238,20 @@
     <!-- SVG Filters for Displacement Effects -->
     <svg width="0" height="0" style="position: absolute;">
         <defs>
-            <!-- Geometric displacement patterns -->
             <filter id="displacement-container" x="-5%" y="-5%" width="110%" height="110%">
                 <feTurbulence baseFrequency="0.08" numOctaves="1" seed="1" type="fractalNoise" result="noise"/>
                 <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"/>
             </filter>
-
             <filter id="displacement-title" x="-5%" y="-5%" width="110%" height="110%">
                 <feTurbulence baseFrequency="0.06" numOctaves="1" seed="2" type="fractalNoise" result="noise">
                     <animate attributeName="baseFrequency" values="0.06;0.08;0.06" dur="8s" repeatCount="indefinite"/>
                 </feTurbulence>
                 <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
             </filter>
-
             <filter id="displacement-button" x="-5%" y="-5%" width="110%" height="110%">
                 <feTurbulence baseFrequency="0.12" numOctaves="1" seed="3" type="fractalNoise" result="noise"/>
                 <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"/>
             </filter>
-
             <filter id="displacement-button-hover" x="-10%" y="-10%" width="120%" height="120%">
                 <feTurbulence baseFrequency="0.18" numOctaves="1" seed="4" type="fractalNoise" result="noise"/>
                 <feDisplacementMap in="SourceGraphic" in2="noise" scale="6"/>
@@ -189,6 +260,12 @@
     </svg>
 
     <div class="title">Tools & Games</div>
+    
+    <!-- NEW: Background Changer Element -->
+    <div class="background-changer">
+        <input type="text" id="bgUrlInput" placeholder="Enter image URL to change background">
+        <button id="changeBgBtn">Change Background</button>
+    </div>
     
     <div class="container">
         <a href="/tanny.html"><button>単位クソゲー</button></a>
@@ -201,5 +278,54 @@
     </div>
   
     <footer></footer>
+
+    <!-- NEW: JavaScript to handle background changing -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get references to the UI elements
+            const changeBgBtn = document.getElementById('changeBgBtn');
+            const bgUrlInput = document.getElementById('bgUrlInput');
+            const body = document.body;
+
+            // Define the original background gradient from the CSS
+            const originalGradient = 'linear-gradient(135deg, #2e8b57 0%, #228b22 100%)';
+
+            // Add click event listener to the button
+            changeBgBtn.addEventListener('click', () => {
+                const imageUrl = bgUrlInput.value.trim();
+
+                if (imageUrl) {
+                    // If a URL is provided, try to load it as an image
+                    const img = new Image();
+                    img.src = imageUrl;
+
+                    // When the image loads successfully...
+                    img.onload = () => {
+                        // ...set it as the body background
+                        body.style.background = `url('${imageUrl}') no-repeat center center fixed`;
+                        body.style.backgroundSize = 'cover';
+                    };
+
+                    // If the image fails to load...
+                    img.onerror = () => {
+                        // ...indicate an error by changing the input border to red
+                        bgUrlInput.style.border = '1px solid #ff6b6b';
+                        // Reset the border color after 3 seconds
+                        setTimeout(() => {
+                            bgUrlInput.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                        }, 3000);
+                    };
+                } else {
+                    // If the input is empty, restore the original gradient background
+                    body.style.background = originalGradient;
+                }
+            });
+
+            // Optional: Reset the error-state border color as the user types a new URL
+            bgUrlInput.addEventListener('input', () => {
+                bgUrlInput.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            });
+        });
+    </script>
 </body>
 </html>
