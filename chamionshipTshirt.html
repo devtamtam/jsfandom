@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japan Grand Finals T-Shirt</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Import a bold, condensed font */
+        @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+        body {
+            background-color: #1E3050; /* Dark blue/navy */
+            font-family: 'Anton', sans-serif; /* Bold, condensed font */
+        }
+        /* Apply horizontal scaling to specific elements for width adjustment */
+        .scale-x-90 {
+            transform: scaleX(0.99); /* Adjust this value to fine-tune horizontal compression */
+            display: inline-block; /* Required for transform on inline elements */
+        }
+        .scale-x-95 {
+            transform: scaleX(0.99); /* Slightly less compression */
+            display: inline-block;
+        }
+        /* Corrected class for horizontal compression */
+        .scale-x-60 {
+            transform: scaleX(0.90)  translateX(-1px); ; /* Set to 60% width */
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <!-- Main container for the T-shirt design -->
+    <div class="text-[#FF7800] text-center p-8 rounded-lg shadow-lg max-w-md w-full">
+        <!-- Main championship text with horizontal scaling for width consistency -->
+        <h2 class="text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-wide uppercase mt-4 ">
+            GRAND FINALS
+        </h2>
+        <h3 class="text-7xl md:text-8xl lg:text-9xl font-extrabold leading-none mt-4">
+            2025
+        </h3>
+        <h1 class="text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-wider uppercase leading-tight mt-4">
+            JAPAN
+        </h1>
+        <h3 class="text-6xl md:text-7xl lg:text-8xl font-bold tracking-wide uppercase mt-4 scale-x-60">
+            WINNER
+        </h3>
+        <!-- Smaller event details at the bottom, now thinner -->
+        <p class="mt-7 text-lg md:text-xl font-light opacity-90 text-center">
+            OSAKA, AUG 20 - 26
+        </p>
+    </div>
+</body>
+</html>
+
