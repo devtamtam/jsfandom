@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Credit Card</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            flex-direction: column; /* Arrange items vertically */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .credit-card {
+            position: relative;
+            width: 430px; /* Base width */
+            height: 270px; /* Base height */
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+            color: #fff;
+            /* Define CSS variables for colors */
+            --start-color: #6A0DAD; /* Default purple */
+            --end-color: #4A00B0;   /* Default darker purple */
+            background: linear-gradient(135deg, var(--start-color), var(--end-color));
+        }
+        .credit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Use RGBA versions of the CSS variables for the blurred background */
+            background: linear-gradient(135deg,
+                        rgba(var(--start-color-rgb), 0.8),
+                        rgba(var(--end-color-rgb), 0.8));
+            filter: blur(100px); /* Apply blur effect */
+            z-index: 0;
+        }
+        .credit-card-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .color-picker-container, .input-fields-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            justify-content: center;
+        }
+        .color-input-group, .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Align labels and inputs to the start */
+            gap: 5px;
+        }
+        .color-input-group label, .input-group label {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 500;
+        }
+        .color-input-group input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+            overflow: hidden; /* Hide default color picker border */
+        }
+        .color-input-group input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        .color-input-group input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+        .color-input-group input[type="color"]::-moz-color-swatch-wrapper {
+            padding: 0;
+        }
+        .color-input-group input[type="color"]::-moz-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+
+        .input-group input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #333;
+            width: 180px; /* Default width for text inputs */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+
+        .input-group input#cardNumber {
+            width: 210px; /* Adjusted width for 16-digit card number */
+        }
+        .input-group input#expiryDate {
+            width: 80px; /* Narrower for expiry date */
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .credit-card {
+                width: 90%; /* Adjust width for smaller screens */
+                height: auto; /* Allow height to adjust */
+                aspect-ratio: 430 / 270; /* Maintain aspect ratio */
+                padding: 16px;
+            }
+            .color-picker-container, .input-fields-container {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+            .input-group input[type="text"] {
+                width: 100%; /* Full width on small screens */
+            }
+            .input-group input#cardNumber {
+                width: 100%;
+            }
+            .input-group input#expiryDate {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="credit-card" id="creditCard">
+        <div class="credit-card-content">
+            <!-- Top section: Chip and Wifi icon -->
+            <div class="flex justify-between items-start mb-6">
+                <!-- Chip placeholder (simple rectangle) -->
+                <div class="w-12 h-9 bg-yellow-400 rounded-md shadow-md"></div>
+                <!-- Wifi icon (simple SVG) -->
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-11v2h2v-2h-2zm0 4v2h2v-2h-2zM9 9h6v6H9V9z"/>
+                </svg>
+            </div>
+
+            <!-- Card Number -->
+            <div class="text-3xl font-semibold mb-4 flex gap-x-3" id="displayCardNumber">
+                <span id="group1" class="text-center">0000</span>
+                <span id="group2" class="text-center">0000</span>
+                <span id="group3" class="text-center">0000</span>
+                <span id="group4" class="text-center">0000</span>
+            </div>
+
+            <!-- Card Holder Name and Expiry -->
+            <div class="flex justify-between items-center text-sm">
+                <div class="uppercase font-medium" id="displayCardHolder">
+                    JOY LAROY
+                </div>
+                <div class="font-medium" id="displayExpiryDate">
+                    12/24
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Picker Controls -->
+    <div class="color-picker-container">
+        <div class="color-input-group">
+            <label for="startColor">Start Color</label>
+            <input type="color" id="startColor" value="#6A0DAD"> <!-- Initial purple -->
+        </div>
+        <div class="color-input-group">
+            <label for="endColor">End Color</label>
+            <input type="color" id="endColor" value="#4A00B0"> <!-- Initial darker purple -->
+        </div>
+    </div>
+
+    <!-- Input Fields for Card Details -->
+    <div class="input-fields-container">
+        <div class="input-group">
+            <label for="cardNumber">Card Number (16 digits)</label>
+            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+        </div>
+        <div class="input-group">
+            <label for="cardHolderName">Card Holder Name</label>
+            <input type="text" id="cardHolderName" placeholder="Full Name">
+        </div>
+        <div class="input-group">
+            <label for="expiryDate">MM/YY</label>
+            <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5">
+        </div>
+    </div>
+
+    <script>
+        // Get references to the elements
+        const creditCard = document.getElementById('creditCard');
+        const startColorInput = document.getElementById('startColor');
+        const endColorInput = document.getElementById('endColor');
+
+        const cardNumberInput = document.getElementById('cardNumber');
+        const cardHolderNameInput = document.getElementById('cardHolderName');
+        const expiryDateInput = document.getElementById('expiryDate');
+
+        const displayCardNumber = document.getElementById('displayCardNumber');
+        const displayCardHolder = document.getElementById('displayCardHolder');
+        const displayExpiryDate = document.getElementById('displayExpiryDate');
+
+        // Get references to individual digit groups
+        const group1 = document.getElementById('group1');
+        const group2 = document.getElementById('group2');
+        const group3 = document.getElementById('group3');
+        const group4 = document.getElementById('group4');
+
+        /**
+         * Converts a hexadecimal color string to an RGB string (e.g., "R, G, B").
+         * This is useful for CSS rgba() function where alpha is applied separately.
+         * @param {string} hex - The hexadecimal color string (e.g., "#RRGGBB").
+         * @returns {string} The RGB color string (e.g., "R, G, B").
+         */
+        function hexToRgb(hex) {
+            let r = 0, g = 0, b = 0;
+            // Handle different hex formats
+            if (hex.length === 4) { // #RGB
+                r = parseInt(hex[1] + hex[1], 16);
+                g = parseInt(hex[2] + hex[2], 16);
+                b = parseInt(hex[3] + hex[3], 16);
+            } else if (hex.length === 7) { // #RRGGBB
+                r = parseInt(hex.substring(1, 3), 16);
+                g = parseInt(hex.substring(3, 5), 16);
+                b = parseInt(hex.substring(5, 7), 16);
+            }
+            return `${r}, ${g}, ${b}`;
+        }
+
+        /**
+         * Updates the CSS custom properties for the credit card's gradient.
+         * This will automatically update both the main card and the blurred pseudo-element.
+         * @param {string} startColor - The hexadecimal color string for the start of the gradient.
+         * @param {string} endColor - The hexadecimal color string for the end of the gradient.
+         */
+        function updateGradient(startColor, endColor) {
+            // Set the CSS custom properties on the credit card element
+            creditCard.style.setProperty('--start-color', startColor);
+            creditCard.style.setProperty('--end-color', endColor);
+            // Also set RGB versions for the rgba() function in the ::before pseudo-element
+            creditCard.style.setProperty('--start-color-rgb', hexToRgb(startColor));
+            creditCard.style.setProperty('--end-color-rgb', hexToRgb(endColor));
+        }
+
+        // --- Event Listeners for Color Pickers ---
+        startColorInput.addEventListener('input', (event) => {
+            updateGradient(event.target.value, endColorInput.value);
+        });
+
+        endColorInput.addEventListener('input', (event) => {
+            updateGradient(startColorInput.value, event.target.value);
+        });
+
+        // --- Event Listeners for Card Details Input ---
+
+        // Card Number Formatting: Add spaces every 4 digits, limit to 16 digits
+        cardNumberInput.addEventListener('input', (event) => {
+            let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+            value = value.substring(0, 16); // Limit to 16 digits
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 '); // Add space after every 4 digits
+            event.target.value = value; // Update input field
+
+            // Split into groups and pad with 0's
+            let digits = value.replace(/\s/g, ''); // Remove spaces for processing
+            let groups = ['0000', '0000', '0000', '0000']; // Default groups
+
+            // Fill groups with actual digits
+            for (let i = 0; i < 4; i++) {
+                let start = i * 4;
+                let end = start + 4;
+                let groupDigits = digits.substring(start, end);
+                if (groupDigits.length > 0) {
+                    // Pad with '0's for visual consistency if less than 4 digits
+                    groups[i] = groupDigits.padEnd(4, '0');
+                } else {
+                    // If no digits for this group, show '0000'
+                    groups[i] = '0000';
+                }
+            }
+
+            // Update each group display
+            group1.textContent = groups[0];
+            group2.textContent = groups[1];
+            group3.textContent = groups[2];
+            group4.textContent = groups[3];
+        });
+
+        // Card Holder Name: Convert to uppercase
+        cardHolderNameInput.addEventListener('input', (event) => {
+            let value = event.target.value.toUpperCase();
+            event.target.value = value;
+            displayCardHolder.textContent = value || 'JOY LAROY'; // Default if empty
+        });
+
+        // Expiry Date Formatting: MM/YY
+        expiryDateInput.addEventListener('input', (event) => {
+            let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4); // Add slash
+            }
+            event.target.value = value.substring(0, 5); // Limit to MM/YY format (5 chars)
+            displayExpiryDate.textContent = value.substring(0, 5) || '12/24'; // Default if empty
+        });
+
+        // Initial update on window load
+        window.onload = () => {
+            updateGradient(startColorInput.value, endColorInput.value);
+            // Set initial display values
+            group1.textContent = '0000';
+            group2.textContent = '0000';
+            group3.textContent = '0000';
+            group4.textContent = '0000';
+            displayCardHolder.textContent = 'JOY LAROY';
+            displayExpiryDate.textContent = '12/24';
+        };
+
+    </script>
+</body>
+</html>
