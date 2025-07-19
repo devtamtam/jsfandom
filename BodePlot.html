@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Bode Plot Visualizer</title>
+    <title>Interactive Bode Plot Visualizer with Cut-off Frequency</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
@@ -103,6 +103,55 @@
             background: #545b62;
         }
         
+        .frequency-info {
+            grid-column: span 2;
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .frequency-info.visible {
+            display: block;
+        }
+        
+        .frequency-info h4 {
+            margin: 0 0 10px 0;
+            color: #155724;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .frequency-values {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .freq-metric {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid #d1ecf1;
+        }
+        
+        .freq-metric .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .freq-metric .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
         .plots-container {
             display: grid;
             grid-template-columns: 1fr;
@@ -169,13 +218,18 @@
     <div class="container">
         <div class="header">
             <h1>🎛️ Interactive Bode Plot Visualizer</h1>
-            <p>Visualize and analyze transfer function frequency responses</p>
+            <p>Visualize transfer functions with automatic cut-off frequency detection</p>
         </div>
         
         <div class="info-panel">
             <h4>📝 Transfer Function Format</h4>
             <p>Enter numerator and denominator polynomials as space or comma-separated coefficients in descending powers of s.</p>
             <p><strong>Example:</strong> For H(s) = (s+1)/(s²+2s+1), enter numerator: <code>1 1</code> and denominator: <code>1 2 1</code></p>
+        </div>
+        
+        <div class="frequency-info" id="frequencyInfo">
+            <h4>🎯 Frequency Analysis</h4>
+            <div class="frequency-values" id="frequencyValues"></div>
         </div>
         
         <div class="controls">
@@ -239,262 +293,495 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Complex number class
-        class Complex {
-            constructor(real, imag = 0) {
-                this.real = real;
-                this.imag = imag;
+<script>
+    // Complex number class
+    class Complex {
+        constructor(real, imag = 0) {
+            this.real = real;
+            this.imag = imag;
+        }
+        
+        add(other) {
+            return new Complex(this.real + other.real, this.imag + other.imag);
+        }
+        
+        multiply(other) {
+            if (typeof other === 'number') {
+                return new Complex(this.real * other, this.imag * other);
             }
-            
-            add(other) {
-                return new Complex(this.real + other.real, this.imag + other.imag);
+            const real = this.real * other.real - this.imag * other.imag;
+            const imag = this.real * other.imag + this.imag * other.real;
+            return new Complex(real, imag);
+        }
+        
+        divide(other) {
+            const denom = other.real * other.real + other.imag * other.imag;
+            const real = (this.real * other.real + this.imag * other.imag) / denom;
+            const imag = (this.imag * other.real - this.real * other.imag) / denom;
+            return new Complex(real, imag);
+        }
+        
+        magnitude() {
+            return Math.sqrt(this.real * this.real + this.imag * this.imag);
+        }
+        
+        phase() {
+            return Math.atan2(this.imag, this.real);
+        }
+    }
+    
+    // Parse polynomial coefficients
+    function parseCoefficients(input) {
+        return input.trim().split(/[\s,]+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+    }
+    
+    // Evaluate polynomial at complex frequency s
+    function evaluatePolynomial(coeffs, s) {
+        let result = new Complex(0);
+        for (let i = 0; i < coeffs.length; i++) {
+            const power = coeffs.length - 1 - i;
+            let term = new Complex(coeffs[i]);
+            for (let p = 0; p < power; p++) {
+                term = term.multiply(s);
             }
-            
-            multiply(other) {
-                if (typeof other === 'number') {
-                    return new Complex(this.real * other, this.imag * other);
-                }
-                const real = this.real * other.real - this.imag * other.imag;
-                const imag = this.real * other.imag + this.imag * other.real;
-                return new Complex(real, imag);
+            result = result.add(term);
+        }
+        return result;
+    }
+    
+    // Generate frequency array
+    function generateFrequencies(fMin, fMax, numPoints, scale) {
+        const frequencies = [];
+        if (scale === 'log') {
+            const logMin = Math.log10(fMin);
+            const logMax = Math.log10(fMax);
+            for (let i = 0; i < numPoints; i++) {
+                const logF = logMin + (i / (numPoints - 1)) * (logMax - logMin);
+                frequencies.push(Math.pow(10, logF));
             }
-            
-            divide(other) {
-                const denom = other.real * other.real + other.imag * other.imag;
-                const real = (this.real * other.real + this.imag * other.imag) / denom;
-                const imag = (this.imag * other.real - this.real * other.imag) / denom;
-                return new Complex(real, imag);
+        } else {
+            for (let i = 0; i < numPoints; i++) {
+                const f = fMin + (i / (numPoints - 1)) * (fMax - fMin);
+                frequencies.push(f);
             }
+        }
+        return frequencies;
+    }
+    
+    // Calculate transfer function response
+    function calculateResponse(numCoeffs, denCoeffs, frequencies) {
+        const magnitudes = [];
+        const phases = [];
+        const magnitudesLinear = [];
+        
+        for (const freq of frequencies) {
+            const s = new Complex(0, freq); // jω
+            const numerator = evaluatePolynomial(numCoeffs, s);
+            const denominator = evaluatePolynomial(denCoeffs, s);
+            const response = numerator.divide(denominator);
             
-            magnitude() {
-                return Math.sqrt(this.real * this.real + this.imag * this.imag);
-            }
+            const magLinear = response.magnitude();
+            const magdB = 20 * Math.log10(magLinear);
             
-            phase() {
-                return Math.atan2(this.imag, this.real);
+            magnitudes.push(magdB);
+            magnitudesLinear.push(magLinear);
+            phases.push(response.phase() * 180 / Math.PI);
+        }
+        
+        return { magnitudes, phases, magnitudesLinear, frequencies };
+    }
+    
+    // Improved cut-off frequency finder with interpolation (FIXED VERSION)
+    function findCutoffFrequency(frequencies, magnitudes, magnitudesLinear) {
+        const dcGain = magnitudes[0];
+        const targetMagnitude = dcGain - 3; // -3dB point
+        
+        // Find the two points that bracket the target magnitude
+        let lowerIndex = -1;
+        for (let i = 0; i < magnitudes.length - 1; i++) {
+            if ((magnitudes[i] >= targetMagnitude && magnitudes[i + 1] <= targetMagnitude) ||
+                (magnitudes[i] <= targetMagnitude && magnitudes[i + 1] >= targetMagnitude)) {
+                lowerIndex = i;
+                break;
             }
         }
         
-        // Parse polynomial coefficients
-        function parseCoefficients(input) {
-            return input.trim().split(/[\s,]+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
-        }
+        if (lowerIndex === -1) return null;
         
-        // Evaluate polynomial at complex frequency s
-        function evaluatePolynomial(coeffs, s) {
-            let result = new Complex(0);
-            for (let i = 0; i < coeffs.length; i++) {
-                const power = coeffs.length - 1 - i;
-                let term = new Complex(coeffs[i]);
-                for (let p = 0; p < power; p++) {
-                    term = term.multiply(s);
-                }
-                result = result.add(term);
+        // Linear interpolation to find exact cut-off frequency
+        const x1 = frequencies[lowerIndex];
+        const x2 = frequencies[lowerIndex + 1];
+        const y1 = magnitudes[lowerIndex];
+        const y2 = magnitudes[lowerIndex + 1];
+        
+        // Interpolate: x = x1 + (target - y1) * (x2 - x1) / (y2 - y1)
+        const cutoffFreq = x1 + (targetMagnitude - y1) * (x2 - x1) / (y2 - y1);
+        
+        // Interpolate magnitude at exact cut-off (should be very close to target)
+        const cutoffMag = y1 + (cutoffFreq - x1) * (y2 - y1) / (x2 - x1);
+        
+        return {
+            frequency: cutoffFreq,
+            magnitude: cutoffMag,
+            dcGain: dcGain,
+            targetMagnitude: targetMagnitude,
+            interpolated: true
+        };
+    }
+    
+    // Find bandwidth for bandpass filters
+    function findBandwidth(frequencies, magnitudes) {
+        // Find peak magnitude
+        const peakMag = Math.max(...magnitudes);
+        const targetMag = peakMag - 3; // -3dB from peak
+        
+        let lowerIndex = -1, upperIndex = -1;
+        
+        // Find lower -3dB point
+        for (let i = 0; i < magnitudes.length; i++) {
+            if (magnitudes[i] >= targetMag) {
+                lowerIndex = i;
+                break;
             }
-            return result;
         }
         
-        // Generate frequency array
-        function generateFrequencies(fMin, fMax, numPoints, scale) {
-            const frequencies = [];
-            if (scale === 'log') {
-                const logMin = Math.log10(fMin);
-                const logMax = Math.log10(fMax);
-                for (let i = 0; i < numPoints; i++) {
-                    const logF = logMin + (i / (numPoints - 1)) * (logMax - logMin);
-                    frequencies.push(Math.pow(10, logF));
-                }
-            } else {
-                for (let i = 0; i < numPoints; i++) {
-                    const f = fMin + (i / (numPoints - 1)) * (fMax - fMin);
-                    frequencies.push(f);
-                }
+        // Find upper -3dB point
+        for (let i = magnitudes.length - 1; i >= 0; i--) {
+            if (magnitudes[i] >= targetMag) {
+                upperIndex = i;
+                break;
             }
-            return frequencies;
         }
         
-        // Calculate transfer function response
-        function calculateResponse(numCoeffs, denCoeffs, frequencies) {
-            const magnitudes = [];
-            const phases = [];
+        if (lowerIndex !== -1 && upperIndex !== -1 && upperIndex > lowerIndex) {
+            return {
+                lowerFreq: frequencies[lowerIndex],
+                upperFreq: frequencies[upperIndex],
+                bandwidth: frequencies[upperIndex] - frequencies[lowerIndex],
+                centerFreq: Math.sqrt(frequencies[lowerIndex] * frequencies[upperIndex])
+            };
+        }
+        
+        return null;
+    }
+    
+    // Display frequency analysis results
+    function displayFrequencyAnalysis(cutoff, bandwidth) {
+        const infoPanel = document.getElementById('frequencyInfo');
+        const valuesContainer = document.getElementById('frequencyValues');
+        
+        let html = '';
+        
+        if (cutoff) {
+            html += `
+                <div class="freq-metric">
+                    <div class="label">Cut-off Frequency (ωc)</div>
+                    <div class="value">${cutoff.frequency.toFixed(3)} rad/s</div>
+                </div>
+                <div class="freq-metric">
+                    <div class="label">DC Gain</div>
+                    <div class="value">${cutoff.dcGain.toFixed(2)} dB</div>
+                </div>
+                <div class="freq-metric">
+                    <div class="label">Magnitude at ωc</div>
+                    <div class="value">${cutoff.magnitude.toFixed(2)} dB</div>
+                </div>
+            `;
+        }
+        
+        if (bandwidth) {
+            html += `
+                <div class="freq-metric">
+                    <div class="label">Lower -3dB Freq</div>
+                    <div class="value">${bandwidth.lowerFreq.toFixed(3)} rad/s</div>
+                </div>
+                <div class="freq-metric">
+                    <div class="label">Upper -3dB Freq</div>
+                    <div class="value">${bandwidth.upperFreq.toFixed(3)} rad/s</div>
+                </div>
+                <div class="freq-metric">
+                    <div class="label">Bandwidth</div>
+                    <div class="value">${bandwidth.bandwidth.toFixed(3)} rad/s</div>
+                </div>
+            `;
+        }
+        
+        if (html) {
+            valuesContainer.innerHTML = html;
+            infoPanel.classList.add('visible');
+        } else {
+            infoPanel.classList.remove('visible');
+        }
+    }
+    
+    // Update plots
+    function updatePlots() {
+        try {
+            const numInput = document.getElementById('numerator').value;
+            const denInput = document.getElementById('denominator').value;
+            const fMin = parseFloat(document.getElementById('freqMin').value);
+            const fMax = parseFloat(document.getElementById('freqMax').value);
+            const numPoints = parseInt(document.getElementById('numPoints').value);
+            const freqScale = document.getElementById('freqScale').value;
             
-            for (const freq of frequencies) {
-                const s = new Complex(0, freq); // jω
-                const numerator = evaluatePolynomial(numCoeffs, s);
-                const denominator = evaluatePolynomial(denCoeffs, s);
-                const response = numerator.divide(denominator);
-                
-                magnitudes.push(20 * Math.log10(response.magnitude()));
-                phases.push(response.phase() * 180 / Math.PI);
-            }
-            
-            return { magnitudes, phases };
-        }
-        
-        // Update plots
-        function updatePlots() {
-            try {
-                const numInput = document.getElementById('numerator').value;
-                const denInput = document.getElementById('denominator').value;
-                const fMin = parseFloat(document.getElementById('freqMin').value);
-                const fMax = parseFloat(document.getElementById('freqMax').value);
-                const numPoints = parseInt(document.getElementById('numPoints').value);
-                const freqScale = document.getElementById('freqScale').value;
-                
-                // Remove any existing error messages
-                const existingError = document.querySelector('.error-message');
-                if (existingError) {
-                    existingError.remove();
-                }
-                
-                const numCoeffs = parseCoefficients(numInput);
-                const denCoeffs = parseCoefficients(denInput);
-                
-                if (numCoeffs.length === 0 || denCoeffs.length === 0) {
-                    throw new Error('Invalid coefficients. Please enter valid numbers.');
-                }
-                
-                const frequencies = generateFrequencies(fMin, fMax, numPoints, freqScale);
-                const { magnitudes, phases } = calculateResponse(numCoeffs, denCoeffs, frequencies);
-                
-                // Create magnitude plot
-                const magnitudeTrace = {
-                    x: frequencies,
-                    y: magnitudes,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Magnitude',
-                    line: { color: '#1f77b4', width: 2 }
-                };
-                
-                const magnitudeLayout = {
-                    title: {
-                        text: 'Magnitude Response',
-                        font: { size: 16, color: '#333' }
-                    },
-                    xaxis: {
-                        title: 'Frequency (rad/s)',
-                        type: freqScale,
-                        gridcolor: '#e0e0e0'
-                    },
-                    yaxis: {
-                        title: 'Magnitude (dB)',
-                        gridcolor: '#e0e0e0'
-                    },
-                    plot_bgcolor: '#fafafa',
-                    paper_bgcolor: 'white'
-                };
-                
-                // Create phase plot
-                const phaseTrace = {
-                    x: frequencies,
-                    y: phases,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Phase',
-                    line: { color: '#ff7f0e', width: 2 }
-                };
-                
-                const phaseLayout = {
-                    title: {
-                        text: 'Phase Response',
-                        font: { size: 16, color: '#333' }
-                    },
-                    xaxis: {
-                        title: 'Frequency (rad/s)',
-                        type: freqScale,
-                        gridcolor: '#e0e0e0'
-                    },
-                    yaxis: {
-                        title: 'Phase (degrees)',
-                        gridcolor: '#e0e0e0'
-                    },
-                    plot_bgcolor: '#fafafa',
-                    paper_bgcolor: 'white'
-                };
-                
-                // Plot both graphs
-                Plotly.newPlot('magnitudePlot', [magnitudeTrace], magnitudeLayout, {responsive: true});
-                Plotly.newPlot('phasePlot', [phaseTrace], phaseLayout, {responsive: true});
-                
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-        
-        // Show error message
-        function showError(message) {
+            // Remove any existing error messages
             const existingError = document.querySelector('.error-message');
             if (existingError) {
                 existingError.remove();
             }
             
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'info-panel error-message';
-            errorDiv.innerHTML = `<h4>⚠️ Error</h4><p>${message}</p>`;
+            const numCoeffs = parseCoefficients(numInput);
+            const denCoeffs = parseCoefficients(denInput);
             
-            const controls = document.querySelector('.controls');
-            controls.parentNode.insertBefore(errorDiv, controls);
-        }
-        
-        // Load example transfer functions
-        function loadExample(type) {
-            const examples = {
-                lowpass: { num: '1', den: '1 1' },
-                highpass: { num: '1 0', den: '1 1' },
-                bandpass: { num: '0 1 0', den: '1 0.2 1' },
-                notch: { num: '1 0 1', den: '1 0.1 1' },
-                integrator: { num: '1', den: '1 0' },
-                differentiator: { num: '1 0', den: '0 1' }
+            if (numCoeffs.length === 0 || denCoeffs.length === 0) {
+                throw new Error('Invalid coefficients. Please enter valid numbers.');
+            }
+            
+            const frequencies = generateFrequencies(fMin, fMax, numPoints, freqScale);
+            const { magnitudes, phases, magnitudesLinear } = calculateResponse(numCoeffs, denCoeffs, frequencies);
+            
+            // Find cut-off frequency and bandwidth
+            const cutoff = findCutoffFrequency(frequencies, magnitudes, magnitudesLinear);
+            const bandwidth = findBandwidth(frequencies, magnitudes);
+            
+            // Display frequency analysis
+            displayFrequencyAnalysis(cutoff, bandwidth);
+            
+            // Create magnitude plot traces
+            const traces = [{
+                x: frequencies,
+                y: magnitudes,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Magnitude',
+                line: { color: '#1f77b4', width: 2 }
+            }];
+            
+            const phaseTraces = [{
+                x: frequencies,
+                y: phases,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Phase',
+                line: { color: '#ff7f0e', width: 2 }
+            }];
+            
+            // Add cut-off frequency markers
+            if (cutoff) {
+                traces.push({
+                    x: [cutoff.frequency],
+                    y: [cutoff.magnitude],
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: 'ωc = ' + cutoff.frequency.toFixed(3) + ' rad/s',
+                    marker: { 
+                        color: '#ff4444', 
+                        size: 12, 
+                        symbol: 'diamond',
+                        line: { color: '#ffffff', width: 2 }
+                    }
+                });
+                
+                // Add vertical line at cutoff
+                traces.push({
+                    x: [cutoff.frequency, cutoff.frequency],
+                    y: [Math.min(...magnitudes) - 5, Math.max(...magnitudes) + 5],
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Cut-off Line',
+                    line: { color: '#ff4444', width: 1, dash: 'dash' },
+                    showlegend: false
+                });
+                
+                // Add phase marker at cutoff - need to interpolate phase too
+                const phaseAtCutoff = interpolatePhaseAtFrequency(frequencies, phases, cutoff.frequency);
+                phaseTraces.push({
+                    x: [cutoff.frequency],
+                    y: [phaseAtCutoff],
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: '∠H(jωc) = ' + phaseAtCutoff.toFixed(1) + '°',
+                    marker: { 
+                        color: '#ff4444', 
+                        size: 12, 
+                        symbol: 'diamond',
+                        line: { color: '#ffffff', width: 2 }
+                    }
+                });
+                
+                // Add vertical line in phase plot
+                phaseTraces.push({
+                    x: [cutoff.frequency, cutoff.frequency],
+                    y: [Math.min(...phases) - 10, Math.max(...phases) + 10],
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Cut-off Line',
+                    line: { color: '#ff4444', width: 1, dash: 'dash' },
+                    showlegend: false
+                });
+            }
+            
+            // Add bandwidth markers for bandpass
+            if (bandwidth) {
+                const lowerMag = magnitudes[frequencies.findIndex(f => Math.abs(f - bandwidth.lowerFreq) < 0.01)];
+                const upperMag = magnitudes[frequencies.findIndex(f => Math.abs(f - bandwidth.upperFreq) < 0.01)];
+                
+                traces.push({
+                    x: [bandwidth.lowerFreq, bandwidth.upperFreq],
+                    y: [lowerMag || -3, upperMag || -3],
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: 'BW = ' + bandwidth.bandwidth.toFixed(3) + ' rad/s',
+                    marker: { color: '#28a745', size: 10, symbol: 'triangle-up' }
+                });
+            }
+            
+            const magnitudeLayout = {
+                title: {
+                    text: 'Magnitude Response',
+                    font: { size: 16, color: '#333' }
+                },
+                xaxis: {
+                    title: 'Frequency (rad/s)',
+                    type: freqScale,
+                    gridcolor: '#e0e0e0'
+                },
+                yaxis: {
+                    title: 'Magnitude (dB)',
+                    gridcolor: '#e0e0e0'
+                },
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: 'white',
+                showlegend: true,
+                legend: {
+                    x: 0.02,
+                    y: 0.98,
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: '#ddd',
+                    borderwidth: 1
+                }
             };
             
-            if (examples[type]) {
-                document.getElementById('numerator').value = examples[type].num;
-                document.getElementById('denominator').value = examples[type].den;
-                updatePlots();
+            const phaseLayout = {
+                title: {
+                    text: 'Phase Response',
+                    font: { size: 16, color: '#333' }
+                },
+                xaxis: {
+                    title: 'Frequency (rad/s)',
+                    type: freqScale,
+                    gridcolor: '#e0e0e0'
+                },
+                yaxis: {
+                    title: 'Phase (degrees)',
+                    gridcolor: '#e0e0e0'
+                },
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: 'white',
+                showlegend: true,
+                legend: {
+                    x: 0.02,
+                    y: 0.02,
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: '#ddd',
+                    borderwidth: 1
+                }
+            };
+            
+            // Plot both graphs
+            Plotly.newPlot('magnitudePlot', traces, magnitudeLayout, {responsive: true});
+            Plotly.newPlot('phasePlot', phaseTraces, phaseLayout, {responsive: true});
+            
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+    
+    // Helper function to interpolate phase at a specific frequency
+    function interpolatePhaseAtFrequency(frequencies, phases, targetFreq) {
+        for (let i = 0; i < frequencies.length - 1; i++) {
+            if (frequencies[i] <= targetFreq && frequencies[i + 1] >= targetFreq) {
+                const x1 = frequencies[i];
+                const x2 = frequencies[i + 1];
+                const y1 = phases[i];
+                const y2 = phases[i + 1];
+                
+                return y1 + (targetFreq - x1) * (y2 - y1) / (x2 - x1);
             }
         }
-        
-        // Reset inputs
-        function resetInputs() {
-            document.getElementById('numerator').value = '1 1';
-            document.getElementById('denominator').value = '1 2 1';
-            document.getElementById('freqMin').value = '0.1';
-            document.getElementById('freqMax').value = '100';
-            document.getElementById('numPoints').value = '1000';
-            document.getElementById('freqScale').value = 'log';
-            
-            const existingError = document.querySelector('.error-message');
-            if (existingError) {
-                existingError.remove();
-            }
-            
-            updatePlots();
+        return phases[0]; // fallback
+    }
+    
+    // Show error message
+    function showError(message) {
+        const existingError = document.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
         }
         
-        // Initialize with default plot
-        window.onload = function() {
-            updatePlots();
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'info-panel error-message';
+        errorDiv.innerHTML = `<h4>⚠️ Error</h4><p>${message}</p>`;
+        
+        const controls = document.querySelector('.controls');
+        controls.parentNode.insertBefore(errorDiv, controls);
+    }
+    
+    // Load example transfer functions
+    function loadExample(type) {
+        const examples = {
+            lowpass: { num: '1', den: '1 1' },
+            highpass: { num: '1 0', den: '1 1' },
+            bandpass: { num: '0 1 0', den: '1 0.2 1' },
+            notch: { num: '1 0 1', den: '1 0.1 1' },
+            integrator: { num: '1', den: '1 0' },
+            differentiator: { num: '1 0', den: '0 1' }
         };
         
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey || event.metaKey) {
-                if (event.key === 'Enter') {
-                    updatePlots();
-                    event.preventDefault();
-                } else if (event.key === 'r') {
-                    resetInputs();
-                    event.preventDefault();
-                }
+        if (examples[type]) {
+            document.getElementById('numerator').value = examples[type].num;
+            document.getElementById('denominator').value = examples[type].den;
+            updatePlots();
+        }
+    }
+    
+    // Reset inputs
+    function resetInputs() {
+        document.getElementById('numerator').value = '1 1';
+        document.getElementById('denominator').value = '1 2 1';
+        document.getElementById('freqMin').value = '0.1';
+        document.getElementById('freqMax').value = '100';
+        document.getElementById('numPoints').value = '1000';
+        document.getElementById('freqScale').value = 'log';
+        
+        const existingError = document.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        document.getElementById('frequencyInfo').classList.remove('visible');
+        updatePlots();
+    }
+    
+    // Initialize with default plot
+    window.onload = function() {
+        updatePlots();
+    };
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey || event.metaKey) {
+            if (event.key === 'Enter') {
+                updatePlots();
+                event.preventDefault();
+            } else if (event.key === 'r') {
+                resetInputs();
+                event.preventDefault();
             }
-        });
-    </script>
+        }
+    });
+</script>
+
+   
 </body>
 </html>
-<!-- made by Claude Sonnet 4 on perplexity pro 
-
-prompt : build a html based tool to visualize and adjust bode plot. add feature to edit a transfer function. and visualize gain [dB] and phase. with axis
---->
