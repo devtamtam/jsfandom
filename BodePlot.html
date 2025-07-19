@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bode Plot Visualizer</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: Arial; margin: 30px; }
+    .input-group { margin-bottom: 1em; }
+    .axis-label { font-size: 13px; color: #333; }
+  </style>
+</head>
+<body>
+  <h2>Bode Plot Visualizer and Transfer Function Editor</h2>
+  
+  <div class="input-group">
+    <label>Numerator coefficients (highest order first): </label>
+    <input id="num" type="text" value="1">
+    <span class="axis-label">e.g., <code>1 2</code> for \( s + 2 \)</span>
+  </div>
+  <div class="input-group">
+    <label>Denominator coefficients (highest order first): </label>
+    <input id="den" type="text" value="1 1 1">
+    <span class="axis-label">e.g., <code>1 3 2</code> for \( s^2 + 3s + 2 \)</span>
+  </div>
+  <button onclick="drawBode()">Draw Bode Plot</button>
+  
+  <div id="bode_mag" style="width: 700px; height: 325px;"></div>
+  <div id="bode_phase" style="width: 700px; height: 325px;"></div>
+
+  <script>
+    function evaluatePolynomial(coeffs, s) {
+      // Evaluate polynomial with coefficients at s (complex)
+      let result = math.complex(0, 0);
+      let N = coeffs.length;
+      for (let i = 0; i < N; i++) {
+        let power = N - i - 1;
+        result = math.add(result, math.multiply(coeffs[i], math.pow(s, power)));
+      }
+      return result;
+    }
+
+    function computeBode(num, den, freq) {
+      let w = 2 * Math.PI * freq;
+      let s = math.complex(0, w);
+      let H_num = evaluatePolynomial(num, s);
+      let H_den = evaluatePolynomial(den, s);
+      let H = math.divide(H_num, H_den);
+      let mag = 20 * Math.log10(math.abs(H));
+      let phase = math.arg(H) * (180 / Math.PI);
+      return [mag, phase];
+    }
+
+    function drawBode() {
+      let num = document.getElementById('num').value.trim().split(/[\s,]+/).map(Number);
+      let den = document.getElementById('den').value.trim().split(/[\s,]+/).map(Number);
+      let freq = [];
+      for (let i = -1; i <= 3; i += 0.01) freq.push(Math.pow(10, i));
+      let mag = [], phase = [];
+      for (let f of freq) {
+        let [m, p] = computeBode(num, den, f);
+        mag.push(m);
+        phase.push(p);
+      }
+      Plotly.newPlot('bode_mag', [{
+        x: freq,
+        y: mag,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Gain (dB)'
+      }], {
+        title: 'Gain (Magnitude) [dB]',
+        xaxis: { title: 'Frequency [Hz]', type: 'log' },
+        yaxis: { title: 'Gain [dB]' }
+      }, {responsive: true});
+
+      Plotly.newPlot('bode_phase', [{
+        x: freq,
+        y: phase,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Phase (deg)'
+      }], {
+        title: 'Phase [deg]',
+        xaxis: { title: 'Frequency [Hz]', type: 'log' },
+        yaxis: { title: 'Phase [deg]' }
+      }, {responsive: true});
+    }
+
+    // Load math.js for complex numbers and polynomial evaluation
+    let script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.3.1/math.min.js";
+    script.onload = drawBode; // Draw initial Bode plot on load
+    document.head.appendChild(script);
+  </script>
+</body>
+</html>
