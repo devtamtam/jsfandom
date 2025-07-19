@@ -1,101 +1,500 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Bode Plot Visualizer</title>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <style>
-    body { font-family: Arial; margin: 30px; }
-    .input-group { margin-bottom: 1em; }
-    .axis-label { font-size: 13px; color: #333; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Bode Plot Visualizer</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .control-group input, .control-group select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .tf-input {
+            font-family: 'Courier New', monospace;
+        }
+        
+        .button-group {
+            grid-column: span 2;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .plots-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .plot-section {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .examples {
+            grid-column: span 2;
+            margin-top: 15px;
+        }
+        
+        .examples h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .example-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-example {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        .btn-example:hover {
+            background: #1e7e34;
+        }
+        
+        .info-panel {
+            grid-column: span 2;
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #2196f3;
+            margin-bottom: 10px;
+        }
+        
+        .info-panel h4 {
+            margin: 0 0 10px 0;
+            color: #1565c0;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+    </style>
 </head>
 <body>
-  <h2>Bode Plot Visualizer and Transfer Function Editor</h2>
-  
-  <div class="input-group">
-    <label>Numerator coefficients (highest order first): </label>
-    <input id="num" type="text" value="1">
-    <span class="axis-label">e.g., <code>1 2</code> for \( s + 2 \)</span>
-  </div>
-  <div class="input-group">
-    <label>Denominator coefficients (highest order first): </label>
-    <input id="den" type="text" value="1 1 1">
-    <span class="axis-label">e.g., <code>1 3 2</code> for \( s^2 + 3s + 2 \)</span>
-  </div>
-  <button onclick="drawBode()">Draw Bode Plot</button>
-  
-  <div id="bode_mag" style="width: 700px; height: 325px;"></div>
-  <div id="bode_phase" style="width: 700px; height: 325px;"></div>
+    <div class="container">
+        <div class="header">
+            <h1>🎛️ Interactive Bode Plot Visualizer</h1>
+            <p>Visualize and analyze transfer function frequency responses</p>
+        </div>
+        
+        <div class="info-panel">
+            <h4>📝 Transfer Function Format</h4>
+            <p>Enter numerator and denominator polynomials as space or comma-separated coefficients in descending powers of s.</p>
+            <p><strong>Example:</strong> For H(s) = (s+1)/(s²+2s+1), enter numerator: <code>1 1</code> and denominator: <code>1 2 1</code></p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="numerator">Numerator Coefficients:</label>
+                <input type="text" id="numerator" class="tf-input" value="1 1" placeholder="e.g., 1 1 0">
+            </div>
+            
+            <div class="control-group">
+                <label for="denominator">Denominator Coefficients:</label>
+                <input type="text" id="denominator" class="tf-input" value="1 2 1" placeholder="e.g., 1 2 1">
+            </div>
+            
+            <div class="control-group">
+                <label for="freqMin">Min Frequency (rad/s):</label>
+                <input type="number" id="freqMin" value="0.1" step="0.1" min="0.001">
+            </div>
+            
+            <div class="control-group">
+                <label for="freqMax">Max Frequency (rad/s):</label>
+                <input type="number" id="freqMax" value="100" step="1" min="1">
+            </div>
+            
+            <div class="control-group">
+                <label for="numPoints">Number of Points:</label>
+                <input type="number" id="numPoints" value="1000" min="100" max="10000" step="100">
+            </div>
+            
+            <div class="control-group">
+                <label for="freqScale">Frequency Scale:</label>
+                <select id="freqScale">
+                    <option value="log">Logarithmic</option>
+                    <option value="linear">Linear</option>
+                </select>
+            </div>
+            
+            <div class="examples">
+                <h4>📋 Example Transfer Functions:</h4>
+                <div class="example-buttons">
+                    <button class="btn-example" onclick="loadExample('lowpass')">Low-pass</button>
+                    <button class="btn-example" onclick="loadExample('highpass')">High-pass</button>
+                    <button class="btn-example" onclick="loadExample('bandpass')">Band-pass</button>
+                    <button class="btn-example" onclick="loadExample('notch')">Notch</button>
+                    <button class="btn-example" onclick="loadExample('integrator')">Integrator</button>
+                    <button class="btn-example" onclick="loadExample('differentiator')">Differentiator</button>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="updatePlots()">📊 Generate Bode Plot</button>
+                <button class="btn-secondary" onclick="resetInputs()">🔄 Reset</button>
+            </div>
+        </div>
+        
+        <div class="plots-container">
+            <div class="plot-section">
+                <div id="magnitudePlot" style="height: 400px;"></div>
+            </div>
+            <div class="plot-section">
+                <div id="phasePlot" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    function evaluatePolynomial(coeffs, s) {
-      // Evaluate polynomial with coefficients at s (complex)
-      let result = math.complex(0, 0);
-      let N = coeffs.length;
-      for (let i = 0; i < N; i++) {
-        let power = N - i - 1;
-        result = math.add(result, math.multiply(coeffs[i], math.pow(s, power)));
-      }
-      return result;
-    }
-
-    function computeBode(num, den, freq) {
-      let w = 2 * Math.PI * freq;
-      let s = math.complex(0, w);
-      let H_num = evaluatePolynomial(num, s);
-      let H_den = evaluatePolynomial(den, s);
-      let H = math.divide(H_num, H_den);
-      let mag = 20 * Math.log10(math.abs(H));
-      let phase = math.arg(H) * (180 / Math.PI);
-      return [mag, phase];
-    }
-
-    function drawBode() {
-      let num = document.getElementById('num').value.trim().split(/[\s,]+/).map(Number);
-      let den = document.getElementById('den').value.trim().split(/[\s,]+/).map(Number);
-      let freq = [];
-      for (let i = -1; i <= 3; i += 0.01) freq.push(Math.pow(10, i));
-      let mag = [], phase = [];
-      for (let f of freq) {
-        let [m, p] = computeBode(num, den, f);
-        mag.push(m);
-        phase.push(p);
-      }
-      Plotly.newPlot('bode_mag', [{
-        x: freq,
-        y: mag,
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Gain (dB)'
-      }], {
-        title: 'Gain (Magnitude) [dB]',
-        xaxis: { title: 'Frequency [Hz]', type: 'log' },
-        yaxis: { title: 'Gain [dB]' }
-      }, {responsive: true});
-
-      Plotly.newPlot('bode_phase', [{
-        x: freq,
-        y: phase,
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Phase (deg)'
-      }], {
-        title: 'Phase [deg]',
-        xaxis: { title: 'Frequency [Hz]', type: 'log' },
-        yaxis: { title: 'Phase [deg]' }
-      }, {responsive: true});
-    }
-
-    // Load math.js for complex numbers and polynomial evaluation
-    let script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.3.1/math.min.js";
-    script.onload = drawBode; // Draw initial Bode plot on load
-    document.head.appendChild(script);
-  </script>
+    <script>
+        // Complex number class
+        class Complex {
+            constructor(real, imag = 0) {
+                this.real = real;
+                this.imag = imag;
+            }
+            
+            add(other) {
+                return new Complex(this.real + other.real, this.imag + other.imag);
+            }
+            
+            multiply(other) {
+                if (typeof other === 'number') {
+                    return new Complex(this.real * other, this.imag * other);
+                }
+                const real = this.real * other.real - this.imag * other.imag;
+                const imag = this.real * other.imag + this.imag * other.real;
+                return new Complex(real, imag);
+            }
+            
+            divide(other) {
+                const denom = other.real * other.real + other.imag * other.imag;
+                const real = (this.real * other.real + this.imag * other.imag) / denom;
+                const imag = (this.imag * other.real - this.real * other.imag) / denom;
+                return new Complex(real, imag);
+            }
+            
+            magnitude() {
+                return Math.sqrt(this.real * this.real + this.imag * this.imag);
+            }
+            
+            phase() {
+                return Math.atan2(this.imag, this.real);
+            }
+        }
+        
+        // Parse polynomial coefficients
+        function parseCoefficients(input) {
+            return input.trim().split(/[\s,]+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+        }
+        
+        // Evaluate polynomial at complex frequency s
+        function evaluatePolynomial(coeffs, s) {
+            let result = new Complex(0);
+            for (let i = 0; i < coeffs.length; i++) {
+                const power = coeffs.length - 1 - i;
+                let term = new Complex(coeffs[i]);
+                for (let p = 0; p < power; p++) {
+                    term = term.multiply(s);
+                }
+                result = result.add(term);
+            }
+            return result;
+        }
+        
+        // Generate frequency array
+        function generateFrequencies(fMin, fMax, numPoints, scale) {
+            const frequencies = [];
+            if (scale === 'log') {
+                const logMin = Math.log10(fMin);
+                const logMax = Math.log10(fMax);
+                for (let i = 0; i < numPoints; i++) {
+                    const logF = logMin + (i / (numPoints - 1)) * (logMax - logMin);
+                    frequencies.push(Math.pow(10, logF));
+                }
+            } else {
+                for (let i = 0; i < numPoints; i++) {
+                    const f = fMin + (i / (numPoints - 1)) * (fMax - fMin);
+                    frequencies.push(f);
+                }
+            }
+            return frequencies;
+        }
+        
+        // Calculate transfer function response
+        function calculateResponse(numCoeffs, denCoeffs, frequencies) {
+            const magnitudes = [];
+            const phases = [];
+            
+            for (const freq of frequencies) {
+                const s = new Complex(0, freq); // jω
+                const numerator = evaluatePolynomial(numCoeffs, s);
+                const denominator = evaluatePolynomial(denCoeffs, s);
+                const response = numerator.divide(denominator);
+                
+                magnitudes.push(20 * Math.log10(response.magnitude()));
+                phases.push(response.phase() * 180 / Math.PI);
+            }
+            
+            return { magnitudes, phases };
+        }
+        
+        // Update plots
+        function updatePlots() {
+            try {
+                const numInput = document.getElementById('numerator').value;
+                const denInput = document.getElementById('denominator').value;
+                const fMin = parseFloat(document.getElementById('freqMin').value);
+                const fMax = parseFloat(document.getElementById('freqMax').value);
+                const numPoints = parseInt(document.getElementById('numPoints').value);
+                const freqScale = document.getElementById('freqScale').value;
+                
+                // Remove any existing error messages
+                const existingError = document.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                const numCoeffs = parseCoefficients(numInput);
+                const denCoeffs = parseCoefficients(denInput);
+                
+                if (numCoeffs.length === 0 || denCoeffs.length === 0) {
+                    throw new Error('Invalid coefficients. Please enter valid numbers.');
+                }
+                
+                const frequencies = generateFrequencies(fMin, fMax, numPoints, freqScale);
+                const { magnitudes, phases } = calculateResponse(numCoeffs, denCoeffs, frequencies);
+                
+                // Create magnitude plot
+                const magnitudeTrace = {
+                    x: frequencies,
+                    y: magnitudes,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Magnitude',
+                    line: { color: '#1f77b4', width: 2 }
+                };
+                
+                const magnitudeLayout = {
+                    title: {
+                        text: 'Magnitude Response',
+                        font: { size: 16, color: '#333' }
+                    },
+                    xaxis: {
+                        title: 'Frequency (rad/s)',
+                        type: freqScale,
+                        gridcolor: '#e0e0e0'
+                    },
+                    yaxis: {
+                        title: 'Magnitude (dB)',
+                        gridcolor: '#e0e0e0'
+                    },
+                    plot_bgcolor: '#fafafa',
+                    paper_bgcolor: 'white'
+                };
+                
+                // Create phase plot
+                const phaseTrace = {
+                    x: frequencies,
+                    y: phases,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Phase',
+                    line: { color: '#ff7f0e', width: 2 }
+                };
+                
+                const phaseLayout = {
+                    title: {
+                        text: 'Phase Response',
+                        font: { size: 16, color: '#333' }
+                    },
+                    xaxis: {
+                        title: 'Frequency (rad/s)',
+                        type: freqScale,
+                        gridcolor: '#e0e0e0'
+                    },
+                    yaxis: {
+                        title: 'Phase (degrees)',
+                        gridcolor: '#e0e0e0'
+                    },
+                    plot_bgcolor: '#fafafa',
+                    paper_bgcolor: 'white'
+                };
+                
+                // Plot both graphs
+                Plotly.newPlot('magnitudePlot', [magnitudeTrace], magnitudeLayout, {responsive: true});
+                Plotly.newPlot('phasePlot', [phaseTrace], phaseLayout, {responsive: true});
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            const existingError = document.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'info-panel error-message';
+            errorDiv.innerHTML = `<h4>⚠️ Error</h4><p>${message}</p>`;
+            
+            const controls = document.querySelector('.controls');
+            controls.parentNode.insertBefore(errorDiv, controls);
+        }
+        
+        // Load example transfer functions
+        function loadExample(type) {
+            const examples = {
+                lowpass: { num: '1', den: '1 1' },
+                highpass: { num: '1 0', den: '1 1' },
+                bandpass: { num: '0 1 0', den: '1 0.2 1' },
+                notch: { num: '1 0 1', den: '1 0.1 1' },
+                integrator: { num: '1', den: '1 0' },
+                differentiator: { num: '1 0', den: '0 1' }
+            };
+            
+            if (examples[type]) {
+                document.getElementById('numerator').value = examples[type].num;
+                document.getElementById('denominator').value = examples[type].den;
+                updatePlots();
+            }
+        }
+        
+        // Reset inputs
+        function resetInputs() {
+            document.getElementById('numerator').value = '1 1';
+            document.getElementById('denominator').value = '1 2 1';
+            document.getElementById('freqMin').value = '0.1';
+            document.getElementById('freqMax').value = '100';
+            document.getElementById('numPoints').value = '1000';
+            document.getElementById('freqScale').value = 'log';
+            
+            const existingError = document.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            updatePlots();
+        }
+        
+        // Initialize with default plot
+        window.onload = function() {
+            updatePlots();
+        };
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                if (event.key === 'Enter') {
+                    updatePlots();
+                    event.preventDefault();
+                } else if (event.key === 'r') {
+                    resetInputs();
+                    event.preventDefault();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
+<!-- made by Claude Sonnet 4 on perplexity pro 
 
-<!--- made by GPT 4.1 on perplexity pro --->
-<!--- prompt : build a html based tool to visualize and adjust bode plot. add feature to edit a transfer function. and visualize gain [dB] and phase. with axis
----->
+prompt : build a html based tool to visualize and adjust bode plot. add feature to edit a transfer function. and visualize gain [dB] and phase. with axis
+--->
