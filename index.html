@@ -2,69 +2,618 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>index</title>
+    <title>Web Tools - Compact Directory</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: green;
-            margin-top: 50px;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1b2e2c;
+            color: #e9ecef;
+            line-height: 1.4;
+            min-height: 100vh;
         }
 
         .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
+            padding: 20px;
         }
 
-        a {
-            text-decoration: none;
+        header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
-        button {
-            height: 80px;
-            width: 350px;
-            padding: 0% 5%;
-            font-size: 1.5rem;
+        h1 {
+            font-size: 2.2em;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .search-bar {
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #495057;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #2d3e3a;
+            color: #e9ecef;
+        }
+
+        .search-input:focus {
+            border-color: #007bff;
+        }
+
+        .search-input::placeholder {
+            color: #adb5bd;
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 14px;
+            border: 1px solid #495057;
+            border-radius: 20px;
+            background: #2d3e3a;
+            color: #e9ecef;
             cursor: pointer;
-            border: 0;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 10px;
-            transition: background-color 0.3s ease;
+            font-size: 13px;
+            transition: all 0.2s;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .filter-btn:hover, .filter-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .tool-card {
+            background: #2d3e3a;
+            border: 1px solid #495057;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .tool-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+        }
+
+        /* Tool-specific colors */
+        .tool-card.game {
+            background: linear-gradient(135deg, #5d1a5d, #7d2e7d);
+            border-color: #8e44ad;
+        }
+        .tool-card.game:hover {
+            border-color: #bb8fce;
+            box-shadow: 0 4px 12px rgba(142,68,173,0.3);
+        }
+
+        .tool-card.encryption {
+            background: linear-gradient(135deg, #5d2d1a, #7d4d2e);
+            border-color: #e74c3c;
+        }
+        .tool-card.encryption:hover {
+            border-color: #ec7063;
+            box-shadow: 0 4px 12px rgba(231,76,60,0.3);
+        }
+
+        .tool-card.generator {
+            background: linear-gradient(135deg, #1a5d1a, #2e7d32);
+            border-color: #27ae60;
+        }
+        .tool-card.generator:hover {
+            border-color: #58d68d;
+            box-shadow: 0 4px 12px rgba(39,174,96,0.3);
+        }
+
+        .tool-card.utility {
+            background: linear-gradient(135deg, #1a3d5d, #2e5d7d);
+            border-color: #3498db;
+        }
+        .tool-card.utility:hover {
+            border-color: #5dade2;
+            box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+        }
+
+        .tool-card.barcode {
+            background: linear-gradient(135deg, #5d4d1a, #7d6d2e);
+            border-color: #f1c40f;
+        }
+        .tool-card.barcode:hover {
+            border-color: #f7dc6f;
+            box-shadow: 0 4px 12px rgba(241,196,15,0.3);
+        }
+
+        .tool-card.maker {
+            background: linear-gradient(135deg, #5d1a4d, #7d2e6d);
+            border-color: #e91e63;
+        }
+        .tool-card.maker:hover {
+            border-color: #f06292;
+            box-shadow: 0 4px 12px rgba(233,30,99,0.3);
+        }
+
+        .tool-card.visualization {
+            background: linear-gradient(135deg, #1a4d3d, #2e6d5d);
+            border-color: #16a085;
+        }
+        .tool-card.visualization:hover {
+            border-color: #48c9b0;
+            box-shadow: 0 4px 12px rgba(22,160,133,0.3);
+        }
+
+        .tool-card.design {
+            background: linear-gradient(135deg, #5d2d1a, #7d4d2e);
+            border-color: #ff7043;
+        }
+        .tool-card.design:hover {
+            border-color: #ff8a65;
+            box-shadow: 0 4px 12px rgba(255,112,67,0.3);
+        }
+
+        .tool-card.platform {
+            background: linear-gradient(135deg, #4d3d1a, #6d5d2e);
+            border-color: #8d6e63;
+        }
+        .tool-card.platform:hover {
+            border-color: #a1887f;
+            box-shadow: 0 4px 12px rgba(141,110,99,0.3);
+        }
+
+        .tool-card.physics {
+            background: linear-gradient(135deg, #2d1a5d, #4d2e7d);
+            border-color: #673ab7;
+        }
+        .tool-card.physics:hover {
+            border-color: #9575cd;
+            box-shadow: 0 4px 12px rgba(103,58,183,0.3);
+        }
+
+        .tool-card.blockchain {
+            background: linear-gradient(135deg, #1a5d5d, #2e7d7d);
+            border-color: #00bcd4;
+        }
+        .tool-card.blockchain:hover {
+            border-color: #4dd0e1;
+            box-shadow: 0 4px 12px rgba(0,188,212,0.3);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .tool-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            font-size: 16px;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        .tool-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #ffffff;
+            flex: 1;
+        }
+
+        .tool-description {
+            color: #adb5bd;
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tool-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .category-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .category-tag {
+            padding: 2px 6px;
+            background: #495057;
+            color: #adb5bd;
+            border-radius: 4px;
+            font-size: 11px;
+            border: 1px solid #6c757d;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .tech {
+            padding: 2px 6px;
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            border-radius: 3px;
+            font-size: 10px;
+            font-family: monospace;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tool-link {
+            padding: 6px 12px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .tool-link:hover {
+            background: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
-  
 <body>
     <div class="container">
-        <a href="/tanny.html"><button>単位クソゲー</button></a>
-        <a href="/eniweb.html"><button>Encryption</button></a>
-        <a href="/random.html"><button>Random Num Generator</button></a>
-        <a href="/modiurl.html"><button>Modify URL</button></a>
-        <a href="/qrmaker.html"><button>QR Maker</button></a>
-        <a href="/barcodereader.html"><button>Barcode Reader</button></a>
-        <a href="/creditcardmaker.html"><button>Credit Card Maker</button></a>
-        <a href="/3Dmodelplatforms.html"><button>3D Model Platforms</button></a>
-        <a href="/BodePlot.html"><button>Bode Plot</button></a>
-        <a href="/chamionshipTshirt.html"><button>Championship T-shirt</button></a>
-        <a href="/jumpbox.html"><button>Jump Box</button></a>
-        <a href="/liquidglass.html"><button>Liquid Glass</button></a>
-        <a href="chaintool/"><button>Chain Tools</button></a>
+        <header>
+            <h1>🛠️ Web Tools</h1>
+        </header>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search tools..." id="searchInput">
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="generator">Generators</button>
+            <button class="filter-btn" data-filter="utility">Utilities</button>
+            <button class="filter-btn" data-filter="maker">Makers</button>
+            <button class="filter-btn" data-filter="game">Games</button>
+            <button class="filter-btn" data-filter="visualization">Data Viz</button>
+        </div>
+
+        <div class="tools-grid" id="toolsGrid">
+            <div class="tool-card game" data-category="game education">
+                <div class="tool-header">
+                    <div class="tool-icon">🎮</div>
+                    <div class="tool-name">単位クソゲー</div>
+                </div>
+                <div class="tool-description">Educational unit conversion game with challenging mechanics.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Game</span>
+                    </div>
+                    <a href="/tanny.html" class="tool-link">Play</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">HTML</span>
+                    <span class="tech">JS</span>
+                    <span class="tech">Game</span>
+                </div>
+            </div>
+
+            <div class="tool-card encryption" data-category="security utility">
+                <div class="tool-header">
+                    <div class="tool-icon">🔐</div>
+                    <div class="tool-name">Encryption Tool</div>
+                </div>
+                <div class="tool-description">Secure text encryption and decryption with various algorithms.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Security</span>
+                    </div>
+                    <a href="/eniweb.html" class="tool-link">Encrypt</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">Crypto</span>
+                    <span class="tech">Security</span>
+                    <span class="tech">AES</span>
+                </div>
+            </div>
+
+            <div class="tool-card generator" data-category="generator utility">
+                <div class="tool-header">
+                    <div class="tool-icon">🎲</div>
+                    <div class="tool-name">Random Number Generator</div>
+                </div>
+                <div class="tool-description">Generate cryptographically secure random numbers with custom ranges.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Random</span>
+                    </div>
+                    <a href="/random.html" class="tool-link">Generate</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">Math</span>
+                    <span class="tech">Random</span>
+                    <span class="tech">Crypto</span>
+                </div>
+            </div>
+
+            <div class="tool-card utility" data-category="utility web">
+                <div class="tool-header">
+                    <div class="tool-icon">🔗</div>
+                    <div class="tool-name">URL Modifier</div>
+                </div>
+                <div class="tool-description">Modify and manipulate URLs with parameter editing and validation.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">URL</span>
+                    </div>
+                    <a href="/modiurl.html" class="tool-link">Modify</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">URL</span>
+                    <span class="tech">Parser</span>
+                    <span class="tech">Web</span>
+                </div>
+            </div>
+
+            <div class="tool-card barcode" data-category="maker generator">
+                <div class="tool-header">
+                    <div class="tool-icon">📱</div>
+                    <div class="tool-name">QR Code Maker</div>
+                </div>
+                <div class="tool-description">Generate QR codes for text, URLs, WiFi credentials and more.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">QR</span>
+                    </div>
+                    <a href="/qrmaker.html" class="tool-link">Create</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">QR</span>
+                    <span class="tech">Barcode</span>
+                    <span class="tech">Generate</span>
+                </div>
+            </div>
+
+            <div class="tool-card barcode" data-category="utility scanner">
+                <div class="tool-header">
+                    <div class="tool-icon">📷</div>
+                    <div class="tool-name">Barcode Reader</div>
+                </div>
+                <div class="tool-description">Scan and decode barcodes and QR codes from images or camera.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Scanner</span>
+                    </div>
+                    <a href="/barcodereader.html" class="tool-link">Scan</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">Camera</span>
+                    <span class="tech">Scanner</span>
+                    <span class="tech">Decoder</span>
+                </div>
+            </div>
+
+            <div class="tool-card maker" data-category="maker generator">
+                <div class="tool-header">
+                    <div class="tool-icon">💳</div>
+                    <div class="tool-name">Credit Card Maker</div>
+                </div>
+                <div class="tool-description">Generate test credit card numbers for development and testing purposes.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Test</span>
+                    </div>
+                    <a href="/creditcardmaker.html" class="tool-link">Generate</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">Luhn</span>
+                    <span class="tech">Test</span>
+                    <span class="tech">Generate</span>
+                </div>
+            </div>
+
+            <div class="tool-card platform" data-category="platform reference">
+                <div class="tool-header">
+                    <div class="tool-icon">🎨</div>
+                    <div class="tool-name">3D Model Platforms</div>
+                </div>
+                <div class="tool-description">Directory of 3D model platforms and repositories for designers.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">3D</span>
+                    </div>
+                    <a href="/3Dmodelplatforms.html" class="tool-link">Browse</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">3D</span>
+                    <span class="tech">Models</span>
+                    <span class="tech">Directory</span>
+                </div>
+            </div>
+
+            <div class="tool-card physics" data-category="visualization engineering">
+                <div class="tool-header">
+                    <div class="tool-icon">📊</div>
+                    <div class="tool-name">Bode Plot</div>
+                </div>
+                <div class="tool-description">Generate Bode plots for frequency response analysis and control systems.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Plot</span>
+                    </div>
+                    <a href="/BodePlot.html" class="tool-link">Plot</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">Math</span>
+                    <span class="tech">Plot</span>
+                    <span class="tech">Engineering</span>
+                </div>
+            </div>
+
+            <div class="tool-card design" data-category="design maker">
+                <div class="tool-header">
+                    <div class="tool-icon">👕</div>
+                    <div class="tool-name">Championship T-shirt</div>
+                </div>
+                <div class="tool-description">Design custom championship and sports-themed t-shirt graphics.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Design</span>
+                    </div>
+                    <a href="/chamionshipTshirt.html" class="tool-link">Design</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">Canvas</span>
+                    <span class="tech">Design</span>
+                    <span class="tech">Graphics</span>
+                </div>
+            </div>
+
+            <div class="tool-card utility" data-category="utility networking">
+                <div class="tool-header">
+                    <div class="tool-icon">🔗</div>
+                    <div class="tool-name">Jump Box</div>
+                </div>
+                <div class="tool-description">Network jump box and SSH tunnel management tool for secure connections.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Network</span>
+                    </div>
+                    <a href="/jumpbox.html" class="tool-link">Connect</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">SSH</span>
+                    <span class="tech">Network</span>
+                    <span class="tech">Security</span>
+                </div>
+            </div>
+
+            <div class="tool-card visualization" data-category="visualization physics">
+                <div class="tool-header">
+                    <div class="tool-icon">🌊</div>
+                    <div class="tool-name">Liquid Glass</div>
+                </div>
+                <div class="tool-description">Physics simulation of liquid glass properties and fluid dynamics.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Physics</span>
+                    </div>
+                    <a href="/liquidglass.html" class="tool-link">Simulate</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">WebGL</span>
+                    <span class="tech">Physics</span>
+                    <span class="tech">Simulation</span>
+                </div>
+            </div>
+
+            <div class="tool-card blockchain" data-category="utility blockchain">
+                <div class="tool-header">
+                    <div class="tool-icon">⛓️</div>
+                    <div class="tool-name">Chain Tools</div>
+                </div>
+                <div class="tool-description">Blockchain analysis and cryptocurrency tools for developers and traders.</div>
+                <div class="tool-footer">
+                    <div class="category-tags">
+                        <span class="category-tag">Crypto</span>
+                    </div>
+                    <a href="chaintool/" class="tool-link">Explore</a>
+                </div>
+                <div class="tech-stack">
+                    <span class="tech">Web3</span>
+                    <span class="tech">Crypto</span>
+                    <span class="tech">Analysis</span>
+                </div>
+            </div>
+        </div>
     </div>
-  
-    <footer>
-    </footer>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const toolsGrid = document.getElementById('toolsGrid');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const toolCards = document.querySelectorAll('.tool-card');
+
+        searchInput.addEventListener('input', filterTools);
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                filterTools();
+            });
+        });
+
+        function filterTools() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+
+            toolCards.forEach(card => {
+                const toolName = card.querySelector('.tool-name').textContent.toLowerCase();
+                const toolDescription = card.querySelector('.tool-description').textContent.toLowerCase();
+                const categories = card.dataset.category;
+
+                const matchesSearch = toolName.includes(searchTerm) || toolDescription.includes(searchTerm);
+                const matchesFilter = activeFilter === 'all' || categories.includes(activeFilter);
+
+                card.style.display = (matchesSearch && matchesFilter) ? 'block' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>
+
