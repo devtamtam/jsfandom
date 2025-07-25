@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英単語 小テスト</title>
+    <style>
+        /* ページ全体の基本スタイル */
+        body {
+            font-family: 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        /* コンテンツのコンテナ */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        /* タイトル */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        /* 操作ボタンのエリア */
+        .controls {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        /* ボタンのスタイル */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.print-btn {
+            background-color: #2ecc71;
+        }
+        button.print-btn:hover {
+            background-color: #27ae60;
+        }
+        /* 単語リストのテーブル */
+        .word-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .word-table th, .word-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .word-table th {
+            background-color: #eaf2f8;
+            font-weight: bold;
+        }
+        .word-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .word-table td.english-word {
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+        .word-table td.answer {
+            /* JavaScriptで表示・非表示を切り替えるためのクラス */
+            transition: color 0.3s;
+        }
+        /* 印刷時専用のスタイル */
+        @media print {
+            /* 印刷時にはボタンなどを非表示にする */
+            body {
+                background-color: #fff;
+                padding: 0;
+                font-size: 12pt;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+            .controls {
+                display: none;
+            }
+            h1 {
+                font-size: 20pt;
+            }
+            /* 印刷時に答えが非表示設定なら、空白を維持する */
+            .word-table td.answer-hidden {
+                color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>英単語 小テスト</h1>
+        
+        <div class="controls">
+            <button onclick="toggleAnswers(false)">答えを隠す</button>
+            <button onclick="toggleAnswers(true)">答えを表示</button>
+            <button class="print-btn" onclick="printPage()">このページを印刷</button>
+        </div>
+
+        <table class="word-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">No.</th>
+                    <th style="width: 45%;">English</th>
+                    <th style="width: 50%;">Japanese</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td class="english-word">organ</td><td class="answer">臓器</td></tr>
+                <tr><td>2</td><td class="english-word">malware</td><td class="answer">悪いソフトウェア、ウィルス</td></tr>
+                <tr><td>3</td><td class="english-word">graduate school</td><td class="answer">大学院</td></tr>
+                <tr><td>4</td><td class="english-word">portable</td><td class="answer">持ち運べる</td></tr>
+                <tr><td>5</td><td class="english-word">rate</td><td class="answer">割合、比率</td></tr>
+                <tr><td>6</td><td class="english-word">avoid</td><td class="answer">避ける</td></tr>
+                <tr><td>7</td><td class="english-word">ratio</td><td class="answer">割合</td></tr>
+                <tr><td>8</td><td class="english-word">function</td><td class="answer">機能</td></tr>
+                <tr><td>9</td><td class="english-word">malfunction</td><td class="answer">誤作動</td></tr>
+                <tr><td>10</td><td class="english-word">breathe</td><td class="answer">呼吸する</td></tr>
+                <tr><td>11</td><td class="english-word">modify</td><td class="answer">変更する</td></tr>
+                <tr><td>12</td><td class="english-word">adjust</td><td class="answer">調節する</td></tr>
+                <tr><td>13</td><td class="english-word">precisely</td><td class="answer">正確に</td></tr>
+                <tr><td>14</td><td class="english-word">require</td><td class="answer">必要とする</td></tr>
+                <tr><td>15</td><td class="english-word">kidney</td><td class="answer">じん臓</td></tr>
+                <tr><td>16</td><td class="english-word">physical</td><td class="answer">身体の</td></tr>
+                <tr><td>17</td><td class="english-word">internal</td><td class="answer">内部の</td></tr>
+                <tr><td>18</td><td class="english-word">domestic</td><td class="answer">国内の</td></tr>
+                <tr><td>19</td><td class="english-word">withdraw</td><td class="answer">引き出す</td></tr>
+                <tr><td>20</td><td class="english-word">regard</td><td class="answer">見なす</td></tr>
+                <tr><td>21</td><td class="english-word">regardless of</td><td class="answer">～に関わらず</td></tr>
+                <tr><td>22</td><td class="english-word">manner</td><td class="answer">方法</td></tr>
+                <tr><td>23</td><td class="english-word">significant</td><td class="answer">重要、大きい</td></tr>
+                <tr><td>24</td><td class="english-word">evaluate</td><td class="answer">評価する</td></tr>
+                <tr><td>25</td><td class="english-word">fluctuate</td><td class="answer">変動する、上下する</td></tr>
+                <tr><td>26</td><td class="english-word">embarrassing</td><td class="answer">はずかしい</td></tr>
+                <tr><td>27</td><td class="english-word">liver</td><td class="answer">肝臓</td></tr>
+                <tr><td>28</td><td class="english-word">lungs</td><td class="answer">肺</td></tr>
+                <tr><td>29</td><td class="english-word">stabilize</td><td class="answer">安定する</td></tr>
+                <tr><td>30</td><td class="english-word">stable</td><td class="answer">安定</td></tr>
+                <tr><td>31</td><td class="english-word">pause</td><td class="answer">止める、停止</td></tr>
+                <tr><td>32</td><td class="english-word">bachelor degree</td><td class="answer">学士号</td></tr>
+                <tr><td>33</td><td class="english-word">master degree</td><td class="answer">修士号</td></tr>
+                <tr><td>34</td><td class="english-word">doctor, PhD</td><td class="answer">博士号</td></tr>
+                <tr><td>35</td><td class="english-word">shift</td><td class="answer">変える、動かす</td></tr>
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        // ページが読み込まれたときに、最初に答えを隠しておく
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleAnswers(false);
+        });
+
+        // 答えの表示・非表示を切り替える関数
+        function toggleAnswers(show) {
+            const answers = document.querySelectorAll('.answer');
+            answers.forEach(td => {
+                if (show) {
+                    td.style.color = '#333'; // 表示する（元の色に戻す）
+                    td.classList.remove('answer-hidden');
+                } else {
+                    td.style.color = 'transparent'; // 非表示にする（文字を透明にする）
+                    td.classList.add('answer-hidden');
+                }
+            });
+        }
+
+        // 印刷機能を呼び出す関数
+        function printPage() {
+            window.print();
+        }
+    </script>
+
+</body>
+</html>
