@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部分分数分解</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: "Hiragino Sans", "Meiryo", "Yu Gothic", sans-serif;
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            padding-left: 10px;
+            border-left: 5px solid #3498db;
+        }
+        
+        h3 {
+            color: #16a085;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        .math-block {
+            padding: 10px;
+            margin: 15px 0;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            overflow-x: auto;
+            text-align: center;
+        }
+        
+        .example {
+            background-color: #f0f7fb;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+        
+        .step {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .step:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #7f8c8d;
+        }
+        
+        .result {
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px dashed #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>部分分数分解</h1>
+        
+        <div class="section">
+            <h2>1. 分母に二乗式があるタイプの分数の部分分数分解法</h2>
+            <p>分母に \( (s+a)^2 \) のような二乗項が含まれる場合、次のように部分分数分解を行います。</p>
+            
+            <div class="math-block">
+                \[ \frac{P(s)}{(s+a)^2} = \frac{A}{s+a} + \frac{B}{(s+a)^2} \]
+            </div>
+            
+            <ul>
+                <li>通分して分子を整理し、係数比較によって \( A \), \( B \) を求めます。</li>
+                <li>結果を検算して確認することが重要です。</li>
+            </ul>
+            
+            <div class="example">
+                <div class="example-title">例：\(\frac{s+3}{(s+1)^2}\) を分解</div>
+                <div class="step">仮定：\(\frac{s+3}{(s+1)^2} = \frac{A}{s+1} + \frac{B}{(s+1)^2}\)</div>
+                <div class="step">通分して整理：\(s+3 = A(s+1) + B\)</div>
+                <div class="step">展開：\(s+3 = As + A + B\)</div>
+                <div class="step">係数比較（\(s\) の係数）：\(1 = A\) より \(A = 1\)</div>
+                <div class="step">係数比較（定数項）：\(3 = A + B = 1 + B\) より \(B = 2\)</div>
+                <div class="result">結果：\(\frac{s+3}{(s+1)^2} = \frac{1}{s+1} + \frac{2}{(s+1)^2}\)</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>2. \((s^2+5)(s+3)\)のような項があるパターン</h2>
+            <p>分母が \((s^2+a)(s+b)\) のような形の場合、次のように部分分数分解を行います。</p>
+            
+            <div class="math-block">
+                \[ \frac{P(s)}{(s^2+a)(s+b)} = \frac{As+B}{s^2+a} + \frac{C}{s+b} \]
+            </div>
+            
+            <ul>
+                <li>通分して分子を整理し、係数比較によって \( A \), \( B \), \( C \) を求めます。</li>
+                <li>\(s^2+a\) が因数分解できない場合は、この形で計算します。</li>
+            </ul>
+            
+            <div class="example">
+                <div class="example-title">例：\(\frac{s+7}{(s^2+5)(s+3)}\) を分解</div>
+                <div class="step">仮定：\(\frac{s+7}{(s^2+5)(s+3)} = \frac{As+B}{s^2+5} + \frac{C}{s+3}\)</div>
+                <div class="step">通分して整理：\(s+7 = (As+B)(s+3) + C(s^2+5)\)</div>
+                <div class="step">展開：\(s+7 = As^2 + 3As + Bs + 3B + Cs^2 + 5C\)</div>
+                <div class="step">整理：\(s+7 = (A+C)s^2 + (3A+B)s + (3B+5C)\)</div>
+                <div class="step">係数比較（\(s^2\) の係数）：\(0 = A+C\)</div>
+                <div class="step">係数比較（\(s\) の係数）：\(1 = 3A+B\)</div>
+                <div class="step">係数比較（定数項）：\(7 = 3B+5C\)</div>
+                <div class="step">連立方程式を解く：\(A = -C\)、\(B = 1-3A\)、\(7 = 3B+5C\)</div>
+                <div class="step">代入計算：\(A = -\frac{2}{7}\)、\(B = \frac{13}{7}\)、\(C = \frac{2}{7}\)</div>
+                <div class="result">結果：\(\frac{s+7}{(s^2+5)(s+3)} = \frac{-\frac{2}{7}s + \frac{13}{7}}{s^2+5} + \frac{\frac{2}{7}}{s+3}\)</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>3. 逆ラプラス変換で分子に\(s\)を残したくない場合</h2>
+            <p>逆ラプラス変換の過程で分子に \( s \) を残したくない場合、以下の方法を試みます。</p>
+            
+            <ul>
+                <li>分子を分母の導関数の形に調整する。</li>
+                <li>部分分数分解を工夫して、\( s \) を含む項と定数項に分ける。</li>
+                <li>完全平方完成を利用して標準形に変形する。</li>
+            </ul>
+            
+            <div class="example">
+                <div class="example-title">例1：\(\frac{s}{s^2+4}\) の逆ラプラス変換</div>
+                <div class="step">分子を導関数の形に調整：\(\frac{s}{s^2+4} = \frac{1}{2} \cdot \frac{2s}{s^2+4}\)</div>
+                <div class="step">\(\frac{2s}{s^2+4}\) は \(\frac{d}{ds}(s^2+4)\) の形に比例</div>
+                <div class="step">公式 \(\mathcal{L}^{-1}\left\{\frac{s}{s^2+a^2}\right\} = \cos(at)\) を適用</div>
+                <div class="result">結果：\(\mathcal{L}^{-1}\left\{\frac{s}{s^2+4}\right\} = \frac{1}{2} \cos(2t)\)</div>
+            </div>
+            
+            <div class="example">
+                <div class="example-title">例2：\(\frac{s+3}{s^2+4s+5}\) の逆ラプラス変換</div>
+                <div class="step">分母を完全平方完成：\(s^2+4s+5 = (s+2)^2 + 1\)</div>
+                <div class="step">分子を \(s+2\) と定数に分ける：\(s+3 = (s+2) + 1\)</div>
+                <div class="step">分数を分解：\(\frac{s+3}{(s+2)^2+1} = \frac{s+2}{(s+2)^2+1} + \frac{1}{(s+2)^2+1}\)</div>
+                <div class="step">置換 \(u = s+2\) とすると：\(\frac{u}{u^2+1} + \frac{1}{u^2+1}\)</div>
+                <div class="step">公式適用：\(\mathcal{L}^{-1}\left\{\frac{u}{u^2+1}\right\} = \cos(t)\)、\(\mathcal{L}^{-1}\left\{\frac{1}{u^2+1}\right\} = \sin(t)\)</div>
+                <div class="step">シフト定理により \(e^{-2t}\) を掛ける</div>
+                <div class="result">結果：\(\mathcal{L}^{-1}\left\{\frac{s+3}{s^2+4s+5}\right\} = e^{-2t}\cos(t) + e^{-2t}\sin(t)\)</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4. 1. と 2. が組み合わさったパターン</h2>
+            <p>分母が \((s+a)^2(s^2+b)\) のような形の場合、以下のように部分分数分解を行います。</p>
+
+            <div class="math-block">
+                \[ \frac{P(s)}{(s+a)^2(s^2+b)} = \frac{A}{s+a} + \frac{B}{(s+a)^2} + \frac{Cs+D}{s^2+b} \]
+            </div>
+
+            <ul>
+                <li>\((s+a)^2\) の項には \( \frac{A}{s+a} + \frac{B}{(s+a)^2} \) を仮定します。</li>
+                <li>\(s^2+b\) の項には \( \frac{Cs+D}{s^2+b} \) を仮定します。</li>
+                <li>通分して分子を整理し、係数比較によって \( A \), \( B \), \( C \), \( D \) を求めます。</li>
+            </ul>
+
+            <div class="example">
+                <div class="example-title">例：\(\frac{s+7}{(s+3)^2(s^2+5)}\) を分解</div>
+                <div class="step">仮定：\(\frac{s+7}{(s+3)^2(s^2+5)} = \frac{A}{s+3} + \frac{B}{(s+3)^2} + \frac{Cs+D}{s^2+5}\)</div>
+                <div class="step">通分して整理：\(s+7 = A(s+3)(s^2+5) + B(s^2+5) + (Cs+D)(s+3)^2\)</div>
+                <div class="step">展開：\(s+7 = A(s^3 + 3s^2 + 5s + 15) + B(s^2 + 5) + (Cs+D)(s^2 + 6s + 9)\)</div>
+                <div class="step">さらに展開：\(s+7 = As^3 + 3As^2 + 5As + 15A + Bs^2 + 5B + Cs^3 + 6Cs^2 + 9Cs + Ds^2 + 6Ds + 9D\)</div>
+                <div class="step">整理：\(s+7 = (A+C)s^3 + (3A+B+6C+D)s^2 + (5A+9C+6D)s + (15A+5B+9D)\)</div>
+                <div class="step">係数比較：</div>
+                <ul>
+                    <li>\(s^3\) の係数：\(0 = A + C\)</li>
+                    <li>\(s^2\) の係数：\(0 = 3A + B + 6C + D\)</li>
+                    <li>\(s\) の係数：\(1 = 5A + 9C + 6D\)</li>
+                    <li>定数項：\(7 = 15A + 5B + 9D\)</li>
+                </ul>
+                <div class="step">連立方程式を解く：</div>
+                <ul>
+                    <li>1つ目の式より：\(C = -A\)</li>
+                    <li>これを他の式に代入し、\(A, B, D\) を求める。</li>
+                    <li>最終的に：\(A = -\frac{1}{8}, B = \frac{1}{4}, C = \frac{1}{8}, D = \frac{3}{4}\)</li>
+                </ul>
+                <div class="result">結果：
+                    \[
+                    \frac{s+7}{(s+3)^2(s^2+5)} = \frac{-\frac{1}{8}}{s+3} + \frac{\frac{1}{4}}{(s+3)^2} + \frac{\frac{1}{8}s + \frac{3}{4}}{s^2+5}
+                    \]
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>5. 分母に \((s+a)(s+b)^2\) のような項があるパターン</h2>
+            <p>分母が \((s+a)(s+b)^2\) のような形の場合、以下のように部分分数分解を行います。</p>
+
+            <div class="math-block">
+                \[ \frac{P(s)}{(s+a)(s+b)^2} = \frac{A}{s+a} + \frac{B}{s+b} + \frac{C}{(s+b)^2} \]
+            </div>
+
+            <ul>
+                <li>\((s+a)\) の項には \( \frac{A}{s+a} \) を仮定します。</li>
+                <li>\((s+b)^2\) の項には \( \frac{B}{s+b} + \frac{C}{(s+b)^2} \) を仮定します。</li>
+                <li>通分して分子を整理し、係数比較によって \( A \), \( B \), \( C \) を求めます。</li>
+            </ul>
+
+            <div class="example">
+                <div class="example-title">例：\(\frac{s+5}{(s+3)(s+1)^2}\) を分解</div>
+                <div class="step">仮定：\(\frac{s+5}{(s+3)(s+1)^2} = \frac{A}{s+3} + \frac{B}{s+1} + \frac{C}{(s+1)^2}\)</div>
+                <div class="step">通分して整理：\(s+5 = A(s+1)^2 + B(s+3)(s+1) + C(s+3)\)</div>
+                <div class="step">展開：\(s+5 = A(s^2 + 2s + 1) + B(s^2 + 4s + 3) + C(s + 3)\)</div>
+                <div class="step">さらに展開：\(s+5 = As^2 + 2As + A + Bs^2 + 4Bs + 3B + Cs + 3C\)</div>
+                <div class="step">整理：\(s+5 = (A+B)s^2 + (2A+4B+C)s + (A+3B+3C)\)</div>
+                <div class="step">係数比較：</div>
+                <ul>
+                    <li>\(s^2\) の係数：\(0 = A + B\)</li>
+                    <li>\(s\) の係数：\(1 = 2A + 4B + C\)</li>
+                    <li>定数項：\(5 = A + 3B + 3C\)</li>
+                </ul>
+                <div class="step">連立方程式を解く：</div>
+                <ul>
+                    <li>1つ目の式より：\(B = -A\)</li>
+                    <li>これを他の式に代入し、\(A, C\) を求める。</li>
+                    <li>最終的に：\(A = 2, B = -2, C = 3\)</li>
+                </ul>
+                <div class="result">結果：
+                    \[
+                    \frac{s+5}{(s+3)(s+1)^2} = \frac{2}{s+3} - \frac{2}{s+1} + \frac{3}{(s+1)^2}
+                    \]
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
