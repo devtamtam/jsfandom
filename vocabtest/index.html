@@ -85,6 +85,7 @@
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
+            vertical-align: top; /* セルの内容を上揃えに */
         }
         .word-table th {
             background-color: #eaf2f8;
@@ -97,7 +98,10 @@
             font-weight: 500;
             font-size: 1.1em;
         }
-        .word-table td.answer {
+        .word-table td.answer-column {
+            /* 解答欄用のスタイル（現在は空） */
+        }
+        .word-table td.japanese-answer {
             transition: color 0.3s;
         }
         /* 印刷時専用のスタイル */
@@ -111,6 +115,7 @@
                 box-shadow: none;
                 border: none;
                 padding: 0;
+                max-width: 100%;
             }
             .list-selector, .controls {
                 display: none;
@@ -118,9 +123,13 @@
             h1 {
                 font-size: 20pt;
             }
-            .word-table td.answer-hidden {
+            .word-table td.japanese-answer.answer-hidden {
                 color: transparent !important;
                  /* 印刷時も確実に隠すために important を指定 */
+            }
+            .word-table td.answer-column {
+                /* 印刷時に書き込みスペースを確保 */
+                height: 2.5em; 
             }
         }
     </style>
@@ -133,7 +142,8 @@
         <div class="list-selector">
             <label for="list-select">Choose a List:</label>
             <select id="list-select" onchange="loadWordList()">
-                </select>
+                <!-- JavaScriptでオプションを生成します -->
+            </select>
         </div>
         
         <div class="controls">
@@ -146,96 +156,98 @@
             <thead>
                 <tr>
                     <th style="width: 5%;">No.</th>
-                    <th style="width: 45%;">English</th>
-                    <th style="width: 50%;">Japanese</th>
+                    <th style="width: 35%;">English</th>
+                    <th style="width: 30%;">Your Answer</th>
+                    <th style="width: 30%;">Japanese</th>
                 </tr>
             </thead>
             <tbody id="word-list-body">
-                </tbody>
+                <!-- 単語リストはJavaScriptによってここに生成されます -->
+            </tbody>
         </table>
     </div>
 
-<script>
-    const listTitle = document.getElementById('list-title');
-    const listSelect = document.getElementById('list-select');
-    const wordListBody = document.getElementById('word-list-body');
-    const totalLists = 10; // 将来的に作成するリストの総数
+    <script>
+        const listTitle = document.getElementById('list-title');
+        const listSelect = document.getElementById('list-select');
+        const wordListBody = document.getElementById('word-list-body');
+        const totalLists = 10; // 将来的に作成するリストの総数
 
-    // ページが読み込まれたときにドロップダウンと最初のリストを初期化
-    document.addEventListener('DOMContentLoaded', function() {
-        // ドロップダウンメニューを生成
-        for (let i = 1; i <= totalLists; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = `List ${i}`; // ★変更点：英語表記に
-            listSelect.appendChild(option);
-        }
-        // 最初のリストを読み込む
-        loadWordList();
-    });
-
-    // 選択された単語リストをJSONファイルから読み込む関数
-    async function loadWordList() {
-        const listNumber = listSelect.value;
-        const filePath = `vocab/list${listNumber}.json`;
-        
-        try {
-            const response = await fetch(filePath);
-            if (!response.ok) {
-                throw new Error('ファイルの読み込みに失敗しました。');
+        // ページが読み込まれたときにドロップダウンと最初のリストを初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // ドロップダウンメニューを生成
+            for (let i = 1; i <= totalLists; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `List ${i}`;
+                listSelect.appendChild(option);
             }
-            const words = await response.json();
-            
-            // テーブルとタイトルを更新
-            updateTable(words);
-            // ★変更点：タイトルを英語表記に
-            listTitle.textContent = `Word List ${String(listNumber).padStart(2, '0')}`;
-            
-            // 読み込み後に答えを隠す
-            toggleAnswers(false);
-
-        } catch (error) {
-            console.error('Error loading word list:', error);
-            wordListBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: red;">Failed to load word list (${filePath}). Please make sure the file exists.</td></tr>`;
-            listTitle.textContent = 'Error';
-        }
-    }
-
-    // テーブルの内容をデータで更新する関数（効率化版）
-    function updateTable(words) {
-        let tableHtml = ''; // HTML文字列を格納する変数を準備
-        words.forEach((word, index) => {
-            const row = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td class="english-word">${word.english}</td>
-                    <td class="answer">${word.japanese}</td>
-                </tr>
-            `;
-            tableHtml += row; // 文字列を結合していく
+            // 最初のリストを読み込む
+            loadWordList();
         });
-        // 最後に一度だけDOMを更新
-        wordListBody.innerHTML = tableHtml;
-    }
 
-    // 答えの表示・非表示を切り替える関数
-    function toggleAnswers(show) {
-        const answers = document.querySelectorAll('.answer');
-        answers.forEach(td => {
-            if (show) {
-                td.style.color = '#333'; // 表示する
-                td.classList.remove('answer-hidden');
-            } else {
-                td.style.color = 'transparent'; // 非表示にする
-                td.classList.add('answer-hidden');
+        // 選択された単語リストをJSONファイルから読み込む関数
+        async function loadWordList() {
+            const listNumber = listSelect.value;
+            const filePath = `vocab/list${listNumber}.json`;
+            
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error('ファイルの読み込みに失敗しました。');
+                }
+                const words = await response.json();
+                
+                updateTable(words);
+                listTitle.textContent = `Word List ${String(listNumber).padStart(2, '0')}`;
+                
+                toggleAnswers(false);
+
+            } catch (error) {
+                console.error('Error loading word list:', error);
+                // ★変更点: エラーメッセージのcolspanを4に更新
+                wordListBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: red;">Failed to load word list (${filePath}). Please make sure the file exists.</td></tr>`;
+                listTitle.textContent = 'Error';
             }
-        });
-    }
+        }
 
-    // 印刷機能を呼び出す関数
-    function printPage() {
-        window.print();
-    }
-</script>
+        // テーブルの内容をデータで更新する関数
+        function updateTable(words) {
+            let tableHtml = '';
+            words.forEach((word, index) => {
+                // ★変更点: 解答用の空のセル<td>を追加
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="english-word">${word.english}</td>
+                        <td class="answer-column"></td>
+                        <td class="japanese-answer">${word.japanese}</td>
+                    </tr>
+                `;
+                tableHtml += row;
+            });
+            wordListBody.innerHTML = tableHtml;
+        }
+
+        // 答えの表示・非表示を切り替える関数
+        function toggleAnswers(show) {
+            const answers = document.querySelectorAll('.japanese-answer');
+            answers.forEach(td => {
+                if (show) {
+                    td.style.color = '#333';
+                    td.classList.remove('answer-hidden');
+                } else {
+                    td.style.color = 'transparent';
+                    td.classList.add('answer-hidden');
+                }
+            });
+        }
+
+        // 印刷機能を呼び出す関数
+        function printPage() {
+            window.print();
+        }
+    </script>
+
 </body>
 </html>
