@@ -155,88 +155,87 @@
         </table>
     </div>
 
-    <script>
-        const listTitle = document.getElementById('list-title');
-        const listSelect = document.getElementById('list-select');
-        const wordListBody = document.getElementById('word-list-body');
-        const totalLists = 10; // 将来的に作成するリストの総数
+<script>
+    const listTitle = document.getElementById('list-title');
+    const listSelect = document.getElementById('list-select');
+    const wordListBody = document.getElementById('word-list-body');
+    const totalLists = 10; // 将来的に作成するリストの総数
 
-        // ページが読み込まれたときにドロップダウンと最初のリストを初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            // ドロップダウンメニューを生成
-            for (let i = 1; i <= totalLists; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `リスト ${i}`;
-                listSelect.appendChild(option);
+    // ページが読み込まれたときにドロップダウンと最初のリストを初期化
+    document.addEventListener('DOMContentLoaded', function() {
+        // ドロップダウンメニューを生成
+        for (let i = 1; i <= totalLists; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `List ${i}`; // ★変更点：英語表記に
+            listSelect.appendChild(option);
+        }
+        // 最初のリストを読み込む
+        loadWordList();
+    });
+
+    // 選択された単語リストをJSONファイルから読み込む関数
+    async function loadWordList() {
+        const listNumber = listSelect.value;
+        const filePath = `vocab/list${listNumber}.json`;
+        
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) {
+                throw new Error('ファイルの読み込みに失敗しました。');
             }
-            // 最初のリストを読み込む
-            loadWordList();
+            const words = await response.json();
+            
+            // テーブルとタイトルを更新
+            updateTable(words);
+            // ★変更点：タイトルを英語表記に
+            listTitle.textContent = `Word List ${String(listNumber).padStart(2, '0')}`;
+            
+            // 読み込み後に答えを隠す
+            toggleAnswers(false);
+
+        } catch (error) {
+            console.error('Error loading word list:', error);
+            wordListBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: red;">Failed to load word list (${filePath}). Please make sure the file exists.</td></tr>`;
+            listTitle.textContent = 'Error';
+        }
+    }
+
+    // テーブルの内容をデータで更新する関数（効率化版）
+    function updateTable(words) {
+        let tableHtml = ''; // HTML文字列を格納する変数を準備
+        words.forEach((word, index) => {
+            const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="english-word">${word.english}</td>
+                    <td class="answer">${word.japanese}</td>
+                </tr>
+            `;
+            tableHtml += row; // 文字列を結合していく
         });
+        // 最後に一度だけDOMを更新
+        wordListBody.innerHTML = tableHtml;
+    }
 
-        // 選択された単語リストをJSONファイルから読み込む関数
-        async function loadWordList() {
-            const listNumber = listSelect.value;
-            const filePath = `vocab/list${listNumber}.json`;
-            
-            try {
-                const response = await fetch(filePath);
-                if (!response.ok) {
-                    throw new Error('ファイルの読み込みに失敗しました。');
-                }
-                const words = await response.json();
-                
-                // テーブルとタイトルを更新
-                updateTable(words);
-                listTitle.textContent = `関西外大単語 ${String(listNumber).padStart(2, '0')}`;
-                
-                // 読み込み後に答えを隠す
-                toggleAnswers(false);
-
-            } catch (error) {
-                console.error('Error loading word list:', error);
-                wordListBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: red;">単語リスト（${filePath}）の読み込みに失敗しました。ファイルが存在するか確認してください。</td></tr>`;
-                listTitle.textContent = 'エラー';
+    // 答えの表示・非表示を切り替える関数
+    function toggleAnswers(show) {
+        const answers = document.querySelectorAll('.answer');
+        answers.forEach(td => {
+            if (show) {
+                td.style.color = '#333'; // 表示する
+                td.classList.remove('answer-hidden');
+            } else {
+                td.style.color = 'transparent'; // 非表示にする
+                td.classList.add('answer-hidden');
             }
-        }
+        });
+    }
 
-        // テーブルの内容をデータで更新する関数
-        function updateTable(words) {
-            // テーブルの中身を一度空にする
-            wordListBody.innerHTML = '';
-            
-            // データからテーブルの行を生成して追加
-            words.forEach((word, index) => {
-                const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td class="english-word">${word.english}</td>
-                        <td class="answer">${word.japanese}</td>
-                    </tr>
-                `;
-                wordListBody.innerHTML += row;
-            });
-        }
-
-        // 答えの表示・非表示を切り替える関数
-        function toggleAnswers(show) {
-            const answers = document.querySelectorAll('.answer');
-            answers.forEach(td => {
-                if (show) {
-                    td.style.color = '#333'; // 表示する
-                    td.classList.remove('answer-hidden');
-                } else {
-                    td.style.color = 'transparent'; // 非表示にする
-                    td.classList.add('answer-hidden');
-                }
-            });
-        }
-
-        // 印刷機能を呼び出す関数
-        function printPage() {
-            window.print();
-        }
-    </script>
-
+    // 印刷機能を呼び出す関数
+    function printPage() {
+        window.print();
+    }
+</script>
 </body>
 </html>
