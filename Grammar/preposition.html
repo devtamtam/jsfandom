@@ -5,119 +5,159 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>前置詞・小テスト</title>
   <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; line-height:1.6; padding:24px; background:#f7f7f9; color:#222; }
-    .container { max-width:760px; margin:0 auto; background:#fff; padding:28px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-    h1 { margin-top:0; font-size:1.6rem; }
-    ol { padding-left: 1.1rem; }
-    li { margin:16px 0; }
-    .q { margin-bottom:6px; }
-    input[type="text"] { padding:8px 10px; font-size:1rem; width:260px; border:1px solid #ccc; border-radius:4px; }
-    .btn { display:inline-block; margin-right:8px; padding:8px 12px; border-radius:6px; background:#007bff; color:#fff; text-decoration:none; cursor:pointer; border:none; }
-    .btn.secondary { background:#6c757d; }
-    .answers { margin-top:16px; padding:12px; background:#f1f8ff; border:1px solid #d9ecff; border-radius:6px; display:none; }
-    .hint { color:#666; font-size:0.9rem; margin-left:8px; }
-    .alt { color:#0056b3; font-size:0.95rem; }
-    footer { margin-top:18px; color:#666; font-size:0.9rem; }
+    @media print {
+      body { font-size: 12pt; }
+      .no-print { display: none; }
+    }
+    
+    body { 
+      font-family: "Times New Roman", serif; 
+      line-height: 1.8; 
+      padding: 20px; 
+      max-width: 800px; 
+      margin: 0 auto; 
+      color: #000; 
+    }
+    
+    h1 { 
+      font-size: 1.5rem; 
+      margin-bottom: 20px; 
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+    
+    .instructions { 
+      margin-bottom: 25px; 
+      font-weight: bold; 
+    }
+    
+    ol { 
+      padding-left: 0; 
+      list-style: none; 
+      counter-reset: question-counter;
+    }
+    
+    li { 
+      margin: 18px 0; 
+      counter-increment: question-counter;
+      page-break-inside: avoid;
+    }
+    
+    li::before {
+      content: counter(question-counter) ". ";
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    
+    .question { 
+      font-size: 1.1rem; 
+      margin-bottom: 8px; 
+    }
+    
+    .blank { 
+      display: inline-block; 
+      width: 120px; 
+      border-bottom: 1px solid #333; 
+      height: 20px; 
+      margin: 0 4px;
+    }
+    
+    .hint { 
+      color: #555; 
+      font-size: 0.9rem; 
+      margin-left: 20px; 
+      font-style: italic;
+    }
+    
+    .answer-section {
+      margin-top: 40px;
+      border-top: 2px solid #333;
+      padding-top: 20px;
+    }
+    
+    .answer-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .answer {
+      font-weight: bold;
+      color: #0066cc;
+    }
+    
+    footer { 
+      margin-top: 30px; 
+      font-size: 0.9rem; 
+      text-align: center;
+      color: #666;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>前置詞（小テスト）</h1>
-    <p>下の空欄に適した語（前置詞など）を入れてください。</p>
-
-    <ol>
-      <li>
-        <div class="q">1. She is tall ( <input type="text" id="a1" placeholder="空欄に入力"> ) Japanese.</div>
-        <div class="hint">※「日本人にしては背が高い」という意味</div>
-      </li>
-
-      <li>
-        <div class="q">2. Make sure to submit this form ( <input type="text" id="a2" placeholder="空欄に入力"> ) two weeks.</div>
-      </li>
-
-      <li>
-        <div class="q">3. Make sure to submit this form ( <input type="text" id="a3" placeholder="空欄に入力"> ) tomorrow.</div>
-      </li>
-
-      <li>
-        <div class="q">4. He can fix anything ( <input type="text" id="a4" placeholder="空欄に入力"> ).</div>
-        <div class="hint">※「彼は何でも簡単に直せる」という意味</div>
-      </li>
-
-      <li>
-        <div class="q">5. I can eat anything ( <input type="text" id="a5" placeholder="空欄に入力"> ) pineapples.</div>
-      </li>
-
-      <li>
-        <div class="q">6. ( <input type="text" id="a6" placeholder="空欄に入力"> ) the summer vacation, all the books in BookOFF were on sale.</div>
-      </li>
-
-      <li>
-        <div class="q">7. Bill Gates told us a key ( <input type="text" id="a7" placeholder="空欄に入力"> ) making a fortune.</div>
-      </li>
-
-      <li>
-        <div class="q">8. The price of Tesla's shares dropped ( <input type="text" id="a8" placeholder="空欄に入力"> ) four thousand dollars.</div>
-      </li>
-
-      <li>
-        <div class="q">9. I can't stop dancing ( <input type="text" id="a9" placeholder="空欄に入力"> ) the music.</div>
-      </li>
-    </ol>
-
-    <div>
-      <button class="btn" id="showAnswers">解答を表示</button>
-      <button class="btn secondary" id="clear">クリア</button>
-    </div>
-
-    <div class="answers" id="answersBox" aria-hidden="true">
-      <h3>模範解答（例）</h3>
-      <ol>
-        <li><strong>for a</strong> — She is tall <em>for a</em> Japanese.</li>
-        <li><strong>within</strong> — Make sure to submit this form <em>within</em> two weeks.</li>
-        <li><strong>by</strong> — Make sure to submit this form <em>by</em> tomorrow.</li>
-        <li><strong>with ease</strong>（または <strong>easily</strong>） — He can fix anything <em>with ease</em>.</li>
-        <li><strong>but</strong> — I can eat anything <em>but</em> pineapples.</li>
-        <li><strong>During</strong> — <em>During</em> the summer vacation, all the books in BookOFF were on sale.</li>
-        <li><strong>to</strong> — Bill Gates told us a key <em>to making a fortune</em>.</li>
-        <li><strong>by</strong> — The price of Tesla's shares dropped <em>by</em> four thousand dollars.</li>
-        <li><strong>to</strong> — I can't stop dancing <em>to</em> the music.</li>
-      </ol>
-    </div>
-
-    <footer>※7番を「a key to making a fortune」に修正済み。</footer>
+  <h1>前置詞（小テスト）</h1>
+  
+  <div class="instructions">
+    下の空欄に適した語（前置詞など）を入れてください。
   </div>
 
-  <script>
-    const answers = [
-      "for a",
-      "within",
-      "by",
-      "with ease",
-      "but",
-      "During",
-      "to",
-      "by",
-      "to"
-    ];
+  <ol>
+    <li>
+      <div class="question">She is tall ( <span class="blank"></span> ) Japanese.</div>
+      <div class="hint">※「日本人にしては背が高い」という意味</div>
+    </li>
 
-    document.getElementById("showAnswers").addEventListener("click", () => {
-      const box = document.getElementById("answersBox");
-      box.style.display = box.style.display === "block" ? "none" : "block";
-      box.setAttribute("aria-hidden", box.style.display !== "block");
-      for (let i=1; i<=answers.length; i++){
-        const el = document.getElementById('a'+i);
-        if(el) el.value = answers[i-1];
-      }
-    });
+    <li>
+      <div class="question">Make sure to submit this form ( <span class="blank"></span> ) two weeks.</div>
+    </li>
 
-    document.getElementById("clear").addEventListener("click", () => {
-      for (let i=1; i<=answers.length; i++){
-        const el = document.getElementById('a'+i);
-        if(el) el.value = "";
-      }
-      document.getElementById("answersBox").style.display = "none";
-    });
-  </script>
+    <li>
+      <div class="question">Make sure to submit this form ( <span class="blank"></span> ) tomorrow.</div>
+    </li>
+
+    <li>
+      <div class="question">He can fix anything ( <span class="blank"></span> ).</div>
+      <div class="hint">※「彼は何でも簡単に直せる」という意味</div>
+    </li>
+
+    <li>
+      <div class="question">I can eat anything ( <span class="blank"></span> ) pineapples.</div>
+    </li>
+
+    <li>
+      <div class="question">( <span class="blank"></span> ) the summer vacation, all the books in BookOFF were on sale.</div>
+    </li>
+
+    <li>
+      <div class="question">Bill Gates told us a key ( <span class="blank"></span> ) making a fortune.</div>
+    </li>
+
+    <li>
+      <div class="question">The price of Tesla's shares dropped ( <span class="blank"></span> ) four thousand dollars.</div>
+    </li>
+
+    <li>
+      <div class="question">I can't stop dancing ( <span class="blank"></span> ) the music.</div>
+    </li>
+  </ol>
+
+  <div class="answer-section">
+    <h2>模範解答</h2>
+    <ol>
+      <li>She is tall ( <span class="answer">for a</span> ) Japanese.</li>
+      <li>Make sure to submit this form ( <span class="answer">within</span> ) two weeks.</li>
+      <li>Make sure to submit this form ( <span class="answer">by</span> ) tomorrow.</li>
+      <li>He can fix anything ( <span class="answer">with ease</span> ).</li>
+      <li>I can eat anything ( <span class="answer">but</span> ) pineapples.</li>
+      <li>( <span class="answer">During</span> ) the summer vacation, all the books in BookOFF were on sale.</li>
+      <li>Bill Gates told us a key ( <span class="answer">to</span> ) making a fortune.</li>
+      <li>The price of Tesla's shares dropped ( <span class="answer">by</span> ) four thousand dollars.</li>
+      <li>I can't stop dancing ( <span class="answer">to</span> ) the music.</li>
+    </ol>
+  </div>
+
+  <footer>
+    <p>※解答欄と模範解答を分けて配置</p>
+  </footer>
 </body>
 </html>
