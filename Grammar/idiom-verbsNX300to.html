@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>English Blanks Quiz</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; }
+    .question { margin-bottom: 25px; }
+    .answer { display: none; color: green; margin-top: 8px; }
+    .toggle-btn { margin-left: 10px; }
+  </style>
+  <script>
+    function toggleAnswer(id) {
+      var answer = document.getElementById(id);
+      if (answer.style.display === "none") {
+        answer.style.display = "block";
+        document.getElementById('btn-' + id).textContent = "Hide Answer";
+      } else {
+        answer.style.display = "none";
+        document.getElementById('btn-' + id).textContent = "Show Answer";
+      }
+    }
+  </script>
+</head>
+<body>
+  <h2>English Quiz – Fill in the Blanks</h2>
+
+  <div class="question">
+    1. She ( )( ) in a crowd because she's very tall.
+    <button class="toggle-btn" id="btn-answer1" onclick="toggleAnswer('answer1')">Show Answer</button>
+    <div class="answer" id="answer1">stands out</div>
+  </div>
+  <div class="question">
+    2. Lithium ion batteries might ( )( ) when it’s too hot.
+    <button class="toggle-btn" id="btn-answer2" onclick="toggleAnswer('answer2')">Show Answer</button>
+    <div class="answer" id="answer2">go off</div>
+  </div>
+  <div class="question">
+    3. You can ( )( ) the physics class if you try.
+    <button class="toggle-btn" id="btn-answer3" onclick="toggleAnswer('answer3')">Show Answer</button>
+    <div class="answer" id="answer3">keep up with</div>
+  </div>
+  <div class="question">
+    4. Your old laptop doesn’t ( ) the minimum requirements of the software.
+    <button class="toggle-btn" id="btn-answer4" onclick="toggleAnswer('answer4')">Show Answer</button>
+    <div class="answer" id="answer4">meet</div>
+  </div>
+  <div class="question">
+    5. You should cut down ( ) sugar.
+    <button class="toggle-btn" id="btn-answer5" onclick="toggleAnswer('answer5')">Show Answer</button>
+    <div class="answer" id="answer5">on</div>
+  </div>
+  <div class="question">
+    6. TSMC ( ) Nvidia ( ) semiconductors.
+    <button class="toggle-btn" id="btn-answer6" onclick="toggleAnswer('answer6')">Show Answer</button>
+    <div class="answer" id="answer6">supplies / with</div>
+  </div>
+  <div class="question">
+    7. The President imposed a tariff ( )( ) cars.
+    <button class="toggle-btn" id="btn-answer7" onclick="toggleAnswer('answer7')">Show Answer</button>
+    <div class="answer" id="answer7">on (imported)</div>
+  </div>
+  <div class="question">
+    8. He left Tokyo ( ) Texas ( ) business.
+    <button class="toggle-btn" id="btn-answer8" onclick="toggleAnswer('answer8')">Show Answer</button>
+    <div class="answer" id="answer8">for / on</div>
+  </div>
+  <div class="question">
+    9. Don’t hesitate to ( ) ( ) help.
+    <button class="toggle-btn" id="btn-answer9" onclick="toggleAnswer('answer9')">Show Answer</button>
+    <div class="answer" id="answer9">ask for</div>
+  </div>
+  <div class="question">
+    10. The start-up company ( )( ) great progress in the rocket experiment.
+    <button class="toggle-btn" id="btn-answer10" onclick="toggleAnswer('answer10')">Show Answer</button>
+    <div class="answer" id="answer10">made / achieved</div>
+  </div>
+  <div class="question">
+    11. Please take ( )( ) the paper.
+    <button class="toggle-btn" id="btn-answer11" onclick="toggleAnswer('answer11')">Show Answer</button>
+    <div class="answer" id="answer11">a look at</div>
+  </div>
+  <div class="question">
+    12. Water plays an important role ( ) the food industry.
+    <button class="toggle-btn" id="btn-answer12" onclick="toggleAnswer('answer12')">Show Answer</button>
+    <div class="answer" id="answer12">in</div>
+  </div>
+  <div class="question">
+    13. Don’t be afraid to ( ) a risk.
+    <button class="toggle-btn" id="btn-answer13" onclick="toggleAnswer('answer13')">Show Answer</button>
+    <div class="answer" id="answer13">take</div>
+  </div>
+
+</body>
+</html>
