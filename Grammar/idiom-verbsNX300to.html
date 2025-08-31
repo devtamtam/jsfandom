@@ -1,95 +1,169 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>English Blanks Quiz</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Phrasal Verbs & Prepositions – Quiz</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 30px; }
-    .question { margin-bottom: 25px; }
-    .answer { display: none; color: green; margin-top: 8px; }
-    .toggle-btn { margin-left: 10px; }
-  </style>
-  <script>
-    function toggleAnswer(id) {
-      var answer = document.getElementById(id);
-      if (answer.style.display === "none") {
-        answer.style.display = "block";
-        document.getElementById('btn-' + id).textContent = "Hide Answer";
-      } else {
-        answer.style.display = "none";
-        document.getElementById('btn-' + id).textContent = "Show Answer";
-      }
+    @media print {
+      body { font-size: 12pt; }
+      .no-print { display: none; }
     }
-  </script>
+
+    body {
+      font-family: "Times New Roman", serif;
+      line-height: 1.8;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      color: #000;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+
+    .instructions {
+      margin-bottom: 25px;
+      font-weight: bold;
+    }
+
+    ol {
+      padding-left: 0;
+      list-style: none;
+      counter-reset: question-counter;
+    }
+
+    li {
+      margin: 18px 0;
+      counter-increment: question-counter;
+      page-break-inside: avoid;
+    }
+
+    li::before {
+      content: counter(question-counter) ". ";
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .question {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .blank {
+      display: inline-block;
+      width: 120px;
+      border-bottom: 1px solid #333;
+      height: 20px;
+      margin: 0 4px;
+      vertical-align: bottom;
+    }
+
+    .hint {
+      color: #555;
+      font-size: 0.9rem;
+      margin-left: 20px;
+      font-style: italic;
+    }
+
+    .answer-section {
+      margin-top: 40px;
+      border-top: 2px solid #333;
+      padding-top: 20px;
+    }
+
+    .answer-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .answer {
+      font-weight: bold;
+      color: #0066cc;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
-  <h2>English Quiz – Fill in the Blanks</h2>
-
-  <div class="question">
-    1. She ( )( ) in a crowd because she's very tall.
-    <button class="toggle-btn" id="btn-answer1" onclick="toggleAnswer('answer1')">Show Answer</button>
-    <div class="answer" id="answer1">stands out</div>
-  </div>
-  <div class="question">
-    2. Lithium ion batteries might ( )( ) when it’s too hot.
-    <button class="toggle-btn" id="btn-answer2" onclick="toggleAnswer('answer2')">Show Answer</button>
-    <div class="answer" id="answer2">go off</div>
-  </div>
-  <div class="question">
-    3. You can ( )( ) the physics class if you try.
-    <button class="toggle-btn" id="btn-answer3" onclick="toggleAnswer('answer3')">Show Answer</button>
-    <div class="answer" id="answer3">keep up with</div>
-  </div>
-  <div class="question">
-    4. Your old laptop doesn’t ( ) the minimum requirements of the software.
-    <button class="toggle-btn" id="btn-answer4" onclick="toggleAnswer('answer4')">Show Answer</button>
-    <div class="answer" id="answer4">meet</div>
-  </div>
-  <div class="question">
-    5. You should cut down ( ) sugar.
-    <button class="toggle-btn" id="btn-answer5" onclick="toggleAnswer('answer5')">Show Answer</button>
-    <div class="answer" id="answer5">on</div>
-  </div>
-  <div class="question">
-    6. TSMC ( ) Nvidia ( ) semiconductors.
-    <button class="toggle-btn" id="btn-answer6" onclick="toggleAnswer('answer6')">Show Answer</button>
-    <div class="answer" id="answer6">supplies / with</div>
-  </div>
-  <div class="question">
-    7. The President imposed a tariff ( )( ) cars.
-    <button class="toggle-btn" id="btn-answer7" onclick="toggleAnswer('answer7')">Show Answer</button>
-    <div class="answer" id="answer7">on (imported)</div>
-  </div>
-  <div class="question">
-    8. He left Tokyo ( ) Texas ( ) business.
-    <button class="toggle-btn" id="btn-answer8" onclick="toggleAnswer('answer8')">Show Answer</button>
-    <div class="answer" id="answer8">for / on</div>
-  </div>
-  <div class="question">
-    9. Don’t hesitate to ( ) ( ) help.
-    <button class="toggle-btn" id="btn-answer9" onclick="toggleAnswer('answer9')">Show Answer</button>
-    <div class="answer" id="answer9">ask for</div>
-  </div>
-  <div class="question">
-    10. The start-up company ( )( ) great progress in the rocket experiment.
-    <button class="toggle-btn" id="btn-answer10" onclick="toggleAnswer('answer10')">Show Answer</button>
-    <div class="answer" id="answer10">made / achieved</div>
-  </div>
-  <div class="question">
-    11. Please take ( )( ) the paper.
-    <button class="toggle-btn" id="btn-answer11" onclick="toggleAnswer('answer11')">Show Answer</button>
-    <div class="answer" id="answer11">a look at</div>
-  </div>
-  <div class="question">
-    12. Water plays an important role ( ) the food industry.
-    <button class="toggle-btn" id="btn-answer12" onclick="toggleAnswer('answer12')">Show Answer</button>
-    <div class="answer" id="answer12">in</div>
-  </div>
-  <div class="question">
-    13. Don’t be afraid to ( ) a risk.
-    <button class="toggle-btn" id="btn-answer13" onclick="toggleAnswer('answer13')">Show Answer</button>
-    <div class="answer" id="answer13">take</div>
+  <h1>English Blanks Quiz</h1>
+  <div class="instructions">
+    Fill in the blanks with suitable words (phrasal verbs, prepositions, etc.).
   </div>
 
+  <ol>
+    <li>
+      <div class="question">She ( <span class="blank"></span> ) in a crowd because she's very tall.</div>
+    </li>
+    <li>
+      <div class="question">Lithium ion batteries might ( <span class="blank"></span> ) when it’s too hot.</div>
+    </li>
+    <li>
+      <div class="question">You can ( <span class="blank"></span> ) the physics class if you try.</div>
+    </li>
+    <li>
+      <div class="question">Your old laptop doesn’t ( <span class="blank"></span> ) the minimum requirements of the software.</div>
+    </li>
+    <li>
+      <div class="question">You should cut down ( <span class="blank"></span> ) sugar.</div>
+    </li>
+    <li>
+      <div class="question">TSMC ( <span class="blank"></span> ) Nvidia ( <span class="blank"></span> ) semiconductors.</div>
+    </li>
+    <li>
+      <div class="question">The President imposed a tariff ( <span class="blank"></span> ) ( <span class="blank"></span> ) cars.</div>
+    </li>
+    <li>
+      <div class="question">He left Tokyo ( <span class="blank"></span> ) Texas ( <span class="blank"></span> ) business.</div>
+    </li>
+    <li>
+      <div class="question">Don’t hesitate to ( <span class="blank"></span> ) ( <span class="blank"></span> ) help.</div>
+    </li>
+    <li>
+      <div class="question">The start-up company ( <span class="blank"></span> ) great progress in the rocket experiment.</div>
+    </li>
+    <li>
+      <div class="question">Please take ( <span class="blank"></span> ) the paper.</div>
+    </li>
+    <li>
+      <div class="question">Water plays an important role ( <span class="blank"></span> ) the food industry.</div>
+    </li>
+    <li>
+      <div class="question">Don’t be afraid to ( <span class="blank"></span> ) a risk.</div>
+    </li>
+  </ol>
+
+  <div class="answer-section">
+    <h2>Model Answers</h2>
+    <ol>
+      <li>She ( <span class="answer">stands out</span> ) in a crowd because she's very tall.</li>
+      <li>Lithium ion batteries might ( <span class="answer">go off</span> ) when it’s too hot.</li>
+      <li>You can ( <span class="answer">keep up with</span> ) the physics class if you try.</li>
+      <li>Your old laptop doesn’t ( <span class="answer">meet</span> ) the minimum requirements of the software.</li>
+      <li>You should cut down ( <span class="answer">on</span> ) sugar.</li>
+      <li>TSMC ( <span class="answer">supplies</span> ) Nvidia ( <span class="answer">with</span> ) semiconductors.</li>
+      <li>The President imposed a tariff ( <span class="answer">on</span> ) ( <span class="answer">imported</span> ) cars.</li>
+      <li>He left Tokyo ( <span class="answer">for</span> ) Texas ( <span class="answer">on</span> ) business.</li>
+      <li>Don’t hesitate to ( <span class="answer">ask</span> ) ( <span class="answer">for</span> ) help.</li>
+      <li>The start-up company ( <span class="answer">made / achieved</span> ) great progress in the rocket experiment.</li>
+      <li>Please take ( <span class="answer">a look at</span> ) the paper.</li>
+      <li>Water plays an important role ( <span class="answer">in</span> ) the food industry.</li>
+      <li>Don’t be afraid to ( <span class="answer">take</span> ) a risk.</li>
+    </ol>
+  </div>
+
+  <footer>
+    <p>Questions and model answers are displayed separately.</p>
+  </footer>
 </body>
 </html>
