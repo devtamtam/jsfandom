@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Idioms Quiz</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #000;
+            background-color: #fff;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        ol {
+            list-style-type: none;
+            padding: 0;
+            counter-reset: question-counter;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            counter-increment: question-counter;
+        }
+
+        .question-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-right: 15px;
+            width: 25px;
+        }
+
+        .question-number::before {
+            content: counter(question-counter) ".";
+        }
+
+        .question-text {
+            font-size: 18px;
+        }
+
+        .blank {
+            display: inline-block;
+            width: 80px;
+            height: 1px;
+            border-bottom: 1px solid #000;
+            margin: 0 5px;
+        }
+
+        .underlined {
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .answer {
+            font-weight: bold;
+            font-size: 18px;
+            color: #000;
+            margin-left: 20px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .choice-question {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .choice-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .options {
+            font-size: 16px;
+            margin-left: 40px;
+        }
+
+        .option-item {
+            margin-right: 20px;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="title">English Idioms Quiz: Adjectives & Adverbs</div>
+
+    <ol>
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">The western part of China is rich <span class="blank"></span> natural resources.</div>
+            </div>
+            <div class="answer">in</div>
+        </li>
+        
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">The contents of the program are subject <span class="blank"></span> change.</div>
+            </div>
+            <div class="answer">to</div>
+        </li>
+        
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">Many people remain ignorant <span class="blank"></span> the danger of lithium-ion batteries.</div>
+            </div>
+            <div class="answer">of/about </div>
+        </li>
+        
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">Apple had to replace defective products free <span class="blank"></span> charge.</div>
+            </div>
+            <div class="answer">of</div>
+        </li>
+        
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">Amanda was a bit anxious <span class="blank"></span> her boyfriend's driving skill.</div>
+            </div>
+            <div class="answer">about</div>
+        </li>
+        
+        <li class="choice-question">
+            <div class="choice-top">
+                <div class="question-left">
+                    <div class="question-number"></div>
+                    <div class="question-text">Choose the word that matches the underlined word: James seemed <span class="underlined">reluctant</span> to join in the conversation.</div>
+                </div>
+                <div class="answer">③ unwilling</div>
+            </div>
+            <div class="options">
+                <span class="option-item">① delighted</span>
+                <span class="option-item">② incapable</span>
+                <span class="option-item">③ unwilling</span>
+                <span class="option-item">④ tired</span>
+            </div>
+        </li>
+        
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">This bag looks suitable <span class="blank"></span> children because it is so small.</div>
+            </div>
+            <div class="answer">for</div>
+        </li>
+        
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">The whole world might be confronted <span class="blank"></span> a food shortage.</div>
+            </div>
+            <div class="answer">with</div>
+        </li>
+        
+        <li>
+            <div class="question-left">
+                <div class="question-number"></div>
+                <div class="question-text">Julia was absorbed <span class="blank"></span> reading books.</div>
+            </div>
+            <div class="answer">in</div>
+        </li>
+    </ol>
+</body>
+</html>
