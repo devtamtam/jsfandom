@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circular Text Design Simulator</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for the simulator -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;700&family=Oswald:wght@700&family=Staatliches&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .control-panel label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #9ca3af; /* gray-400 */
+        }
+        .control-panel input[type="text"],
+        .control-panel input[type="number"],
+        .control-panel select {
+            width: 100%;
+            background-color: #4b5563; /* gray-600 */
+            border: 1px solid #6b7280; /* gray-500 */
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            color: #f3f4f6; /* gray-100 */
+            margin-bottom: 1rem;
+        }
+        .control-panel input[type="range"] {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .control-panel input[type="color"] {
+            width: 100%;
+            height: 2.5rem;
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+            background-color: #4b5563; /* gray-600 */
+            border: 1px solid #6b7280; /* gray-500 */
+            cursor: pointer;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <!-- Control Panel -->
+    <div class="control-panel w-full md:w-80 lg:w-96 bg-gray-800 p-6 overflow-y-auto flex-shrink-0">
+        <h1 class="text-2xl font-bold text-cyan-400 mb-1">Design Simulator</h1>
+        <p class="text-gray-400 mb-6">Create generative text art.</p>
+
+        <!-- Controls -->
+        <div>
+            <label for="text-input">Text</label>
+            <input type="text" id="text-input" value="circle">
+
+            <label for="font-select">Font Family</label>
+            <select id="font-select">
+                <option>Bebas Neue</option>
+                <option>Anton</option>
+                <option>Oswald</option>
+                <option>Staatliches</option>
+                <option>Inter</option>
+            </select>
+
+            <label for="font-size-slider">Font Size: <span id="font-size-value">30</span>px</label>
+            <input type="range" id="font-size-slider" min="5" max="100" value="30">
+
+            <label for="rings-slider">Rings: <span id="rings-value">10</span></label>
+            <input type="range" id="rings-slider" min="1" max="50" value="10">
+
+            <label for="radius-slider">Start Radius: <span id="radius-value">50</span>px</label>
+            <input type="range" id="radius-slider" min="10" max="200" value="50">
+            
+            <label for="spacing-slider">Ring Spacing: <span id="spacing-value">20</span>px</label>
+            <input type="range" id="spacing-slider" min="1" max="100" value="20">
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="text-color">Text Color</label>
+                    <input type="color" id="text-color" value="#FFFFFF">
+                </div>
+                <div>
+                    <label for="bg-color">BG Color</label>
+                    <input type="color" id="bg-color" value="#111827">
+                </div>
+            </div>
+
+            <button id="download-btn" class="btn bg-cyan-600 hover:bg-cyan-700 text-white mt-4">Save as PNG</button>
+        </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="flex-grow bg-gray-900 flex flex-col items-center justify-center p-4" id="canvas-container">
+        <h2 class="text-gray-500 text-sm uppercase tracking-widest mb-4">Live Preview</h2>
+        <canvas id="design-canvas"></canvas>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get DOM elements
+            const canvas = document.getElementById('design-canvas');
+            const ctx = canvas.getContext('2d');
+            const canvasContainer = document.getElementById('canvas-container');
+
+            const textInput = document.getElementById('text-input');
+            const fontSelect = document.getElementById('font-select');
+            const fontSizeSlider = document.getElementById('font-size-slider');
+            const ringsSlider = document.getElementById('rings-slider');
+            const radiusSlider = document.getElementById('radius-slider');
+            const spacingSlider = document.getElementById('spacing-slider');
+            const textColorPicker = document.getElementById('text-color');
+            const bgColorPicker = document.getElementById('bg-color');
+            const downloadBtn = document.getElementById('download-btn');
+
+            const fontSizeValue = document.getElementById('font-size-value');
+            const ringsValue = document.getElementById('rings-value');
+            const radiusValue = document.getElementById('radius-value');
+            const spacingValue = document.getElementById('spacing-value');
+
+            // --- State Object ---
+            let config = {
+                text: textInput.value,
+                font: fontSelect.value,
+                fontSize: parseInt(fontSizeSlider.value),
+                rings: parseInt(ringsSlider.value),
+                startRadius: parseInt(radiusSlider.value),
+                ringSpacing: parseInt(spacingSlider.value),
+                textColor: textColorPicker.value,
+                bgColor: bgColorPicker.value,
+            };
+
+            // --- Canvas Sizing ---
+            function resizeCanvas() {
+                const size = Math.min(canvasContainer.clientWidth, canvasContainer.clientHeight) * 0.85; // Adjusted size for title
+                canvas.width = size;
+                canvas.height = size;
+                draw(); // Redraw on resize
+            }
+
+            // --- Drawing Logic ---
+            function draw() {
+                if (!ctx) return;
+
+                // Clear canvas with background color
+                ctx.fillStyle = config.bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                
+                // Ensure text is long enough to fill circles without gaps
+                let circumference = 2 * Math.PI * (config.startRadius + (config.rings * config.ringSpacing));
+                let approxCharWidth = config.fontSize * 0.6; // Approximation
+                let charsNeeded = Math.ceil(circumference / approxCharWidth);
+                let fullText = config.text.repeat(Math.ceil(charsNeeded / config.text.length) || 1);
+
+
+                for (let j = 0; j < config.rings; j++) {
+                    const radius = config.startRadius + (j * config.ringSpacing);
+                    ctx.font = `${config.fontSize}px "${config.font}"`;
+                    ctx.fillStyle = config.textColor;
+                    ctx.textBaseline = 'middle';
+                    ctx.textAlign = 'center';
+
+                    for (let i = 0; i < fullText.length; i++) {
+                        const char = fullText[i];
+                        const angle = (i / (radius * 0.2)) * Math.PI; // Adjust divisor for density
+
+                        ctx.save();
+                        ctx.translate(centerX, centerY);
+                        ctx.rotate(angle);
+                        ctx.fillText(char, 0, -radius);
+                        ctx.restore();
+                    }
+                }
+            }
+
+            // --- Event Listeners ---
+            function setupEventListeners() {
+                const controls = [textInput, fontSelect, fontSizeSlider, ringsSlider, radiusSlider, spacingSlider, textColorPicker, bgColorPicker];
+
+                controls.forEach(control => {
+                    control.addEventListener('input', () => {
+                        updateConfig();
+                        draw();
+                    });
+                });
+
+                window.addEventListener('resize', resizeCanvas);
+                downloadBtn.addEventListener('click', downloadImage);
+            }
+
+            function updateConfig() {
+                config = {
+                    text: textInput.value,
+                    font: fontSelect.value,
+                    fontSize: parseInt(fontSizeSlider.value),
+                    rings: parseInt(ringsSlider.value),
+                    startRadius: parseInt(radiusSlider.value),
+                    ringSpacing: parseInt(spacingSlider.value),
+                    textColor: textColorPicker.value,
+                    bgColor: bgColorPicker.value,
+                };
+                
+                // Update value displays
+                fontSizeValue.textContent = config.fontSize;
+                ringsValue.textContent = config.rings;
+                radiusValue.textContent = config.startRadius;
+                spacingValue.textContent = config.spacingValue;
+            }
+            
+            function downloadImage() {
+                // Temporarily draw on a high-res canvas for better quality
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                const scale = 2; // 2x resolution
+                tempCanvas.width = canvas.width * scale;
+                tempCanvas.height = canvas.height * scale;
+                tempCtx.scale(scale, scale);
+
+                // We need to re-run the draw logic on the temporary context
+                // This is a simplified version; for perfect replication, pass all config
+                tempCtx.fillStyle = config.bgColor;
+                tempCtx.fillRect(0,0, tempCanvas.width, tempCanvas.height);
+                
+                const originalCtx = ctx; // save original context
+                ctx = tempCtx; // swap contexts for drawing
+                draw();
+                ctx = originalCtx; // swap back
+                
+                const link = document.createElement('a');
+                link.download = 'circular-text-design.png';
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            }
+
+            // --- Initial Setup ---
+            updateConfig();
+            resizeCanvas();
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>
+
