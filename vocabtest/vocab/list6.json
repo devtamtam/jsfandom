@@ -7,7 +7,7 @@
   { "english": "is putting on", "japanese": "服着てる(最中)" },
   { "english": "is cleaning", "japanese": "そうじしてる" },
   { "english": "is organizing", "japanese": "整理収納してる" },
-  { "english": "is putting ... in ...", "japanese": "～に…を入れてる" },
+  { "english": "is putting ... in ~", "japanese": "～に…を入れてる" },
   { "english": "is carrying", "japanese": "…を運んでる" },
   { "english": "is holding", "japanese": "持っている" },
   { "english": "is getting on", "japanese": "のりこんでいる" }
